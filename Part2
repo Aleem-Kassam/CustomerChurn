@@ -1,0 +1,3280 @@
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "id": "f7ebea9a",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "## Use this for consistency in graphs through out the notebook\n",
+    "import numpy as np\n",
+    "import pandas as pd\n",
+    "import seaborn as sns \n",
+    "import re\n",
+    "# to make this notebook's output stable across runs\n",
+    "np.random.seed(123)\n",
+    "import scipy\n",
+    "import sklearn\n",
+    "from sklearn.compose import ColumnTransformer\n",
+    "from sklearn.pipeline import Pipeline\n",
+    "from sklearn.impute import SimpleImputer\n",
+    "from sklearn.preprocessing import StandardScaler\n",
+    "from sklearn.preprocessing import MinMaxScaler\n",
+    "from sklearn.preprocessing import OneHotEncoder\n",
+    "from sklearn.preprocessing import FunctionTransformer\n",
+    "from sklearn.model_selection import train_test_split\n",
+    "from sklearn.model_selection import StratifiedShuffleSplit\n",
+    "from sklearn.model_selection import GridSearchCV\n",
+    "from sklearn import metrics\n",
+    "from sklearn.metrics import RocCurveDisplay\n",
+    "from sklearn.metrics import roc_auc_score\n",
+    "from sklearn.metrics import precision_recall_curve\n",
+    "from sklearn import svm\n",
+    "from sklearn.datasets import make_classification\n",
+    "from sklearn.metrics import ConfusionMatrixDisplay\n",
+    "from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score\n",
+    "\n",
+    "# To plot pretty figures\n",
+    "%matplotlib inline\n",
+    "import matplotlib\n",
+    "import matplotlib.pyplot as plt\n",
+    "plt.rcParams['axes.labelsize'] = 14\n",
+    "plt.rcParams['xtick.labelsize'] = 12\n",
+    "plt.rcParams['ytick.labelsize'] = 12\n",
+    "from sklearn.model_selection import cross_validate"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "id": "a0335d7f",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "<Figure size 1728x1008 with 0 Axes>"
+      ]
+     },
+     "execution_count": 2,
+     "metadata": {},
+     "output_type": "execute_result"
+    },
+    {
+     "data": {
+      "text/plain": [
+       "<Figure size 1728x1008 with 0 Axes>"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "#required imports\n",
+    "import numpy as np\n",
+    "import pandas as pd\n",
+    "np.random.seed(123)\n",
+    "import scipy\n",
+    "import sklearn\n",
+    "from sklearn.compose import ColumnTransformer\n",
+    "from sklearn.pipeline import Pipeline\n",
+    "from sklearn.impute import SimpleImputer\n",
+    "from sklearn.preprocessing import StandardScaler\n",
+    "from sklearn.preprocessing import MinMaxScaler\n",
+    "from sklearn.preprocessing import OneHotEncoder\n",
+    "from sklearn.preprocessing import FunctionTransformer\n",
+    "from sklearn.model_selection import train_test_split\n",
+    "from sklearn.model_selection import StratifiedShuffleSplit\n",
+    "from sklearn.model_selection import GridSearchCV\n",
+    "from sklearn import metrics\n",
+    "from sklearn.metrics import RocCurveDisplay\n",
+    "from sklearn.metrics import roc_auc_score\n",
+    "from sklearn.metrics import precision_recall_curve\n",
+    "from sklearn import svm\n",
+    "from sklearn.datasets import make_classification\n",
+    "from sklearn.metrics import ConfusionMatrixDisplay,confusion_matrix,classification_report\n",
+    "from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score\n",
+    "from sklearn.model_selection import RandomizedSearchCV\n",
+    "# To plot pretty figures\n",
+    "%matplotlib inline\n",
+    "import matplotlib\n",
+    "import matplotlib.pyplot as plt\n",
+    "plt.rcParams['axes.labelsize'] = 14\n",
+    "plt.rcParams['xtick.labelsize'] = 12\n",
+    "plt.rcParams['ytick.labelsize'] = 12\n",
+    "from IPython.display import SVG\n",
+    "from graphviz import Source\n",
+    "from sklearn import tree\n",
+    "from scipy import stats\n",
+    "from sklearn.ensemble import RandomForestClassifier\n",
+    "from sklearn.ensemble import ExtraTreesClassifier\n",
+    "from sklearn.ensemble import AdaBoostClassifier\n",
+    "from sklearn import ensemble\n",
+    "from sklearn.model_selection import learning_curve\n",
+    "from sklearn.metrics import roc_auc_score\n",
+    "import plotly.express as px\n",
+    "from matplotlib import rcParams\n",
+    "from random import randint\n",
+    "from datetime import datetime\n",
+    "from datetime import date, timedelta\n",
+    "import time\n",
+    "from pprint import pprint\n",
+    "import numpy as np\n",
+    "import matplotlib.pyplot as plt\n",
+    "from sklearn.naive_bayes import GaussianNB\n",
+    "from sklearn.svm import SVC\n",
+    "from sklearn.datasets import load_digits\n",
+    "from sklearn.model_selection import learning_curve\n",
+    "from sklearn.model_selection import ShuffleSplit\n",
+    "from yellowbrick.model_selection import learning_curve\n",
+    "from sklearn.pipeline import Pipeline\n",
+    "from sklearn.pipeline import FeatureUnion\n",
+    "import numpy as np\n",
+    "import matplotlib.pyplot as plt\n",
+    "from sklearn.naive_bayes import GaussianNB\n",
+    "from sklearn.svm import SVC\n",
+    "from sklearn.datasets import load_digits\n",
+    "from sklearn.model_selection import learning_curve\n",
+    "from sklearn.model_selection import ShuffleSplit\n",
+    "from sklearn.tree import DecisionTreeClassifier\n",
+    "import seaborn as sns\n",
+    "plt.figure(figsize=(24,14))\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "id": "261ca13d",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from numpy import mean\n",
+    "from numpy import std\n",
+    "from pandas import read_csv\n",
+    "from sklearn.ensemble import RandomForestClassifier\n",
+    "from sklearn.impute import KNNImputer\n",
+    "from sklearn.model_selection import cross_val_score\n",
+    "from sklearn.model_selection import RepeatedStratifiedKFold\n",
+    "from sklearn.pipeline import Pipeline\n",
+    "from matplotlib import pyplot\n",
+    "rcParams['figure.figsize'] = 20,16"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "id": "526b8698",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def get_roc_score(model):\n",
+    "    cv_results = cross_validate(model, X_train, np.ravel(y_train),scoring='roc_auc', cv=5)\n",
+    "    sorted(cv_results.keys())\n",
+    "    ['fit_time', 'score_time', 'test_score']\n",
+    "    print(\"The roc_auc scores:\",cv_results['test_score'])\n",
+    "    print(\"The mean roc_acuc score is:\",cv_results['test_score'].mean())"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "id": "2c09f0de",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def find_features(model):\n",
+    "    #Takes a fitted model.\n",
+    "    #Returns a dataframe of featue importances from the model.\n",
+    "    calc_importance=model.feature_importances_\n",
+    "    important_features=list(zip(column_names,calc_importance))\n",
+    "    important_features=pd.DataFrame(important_features)\n",
+    "    important_features.rename(columns={0:'feature'},inplace=True)\n",
+    "    important_features.rename(columns={1:'value'},inplace=True)\n",
+    "    important_features.sort_values('value', ascending=False,inplace=True)\n",
+    "    return important_features\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "id": "c9e4d774",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def plot_important_features(found_features):\n",
+    "    #Make barplot of the best features found by function: find_features.\n",
+    "    useful_data=found_features.iloc[np.r_[4,11:18]]\n",
+    "    print(\"Features that are not zero\",useful_data)\n",
+    "    sns.barplot(x=useful_data['feature'],y=useful_data['value'],data=useful_data)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 150,
+   "id": "694f79de",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "'Importing the dataset'"
+      ]
+     },
+     "execution_count": 150,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "'''Importing the dataset'''"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "id": "4bc8f125",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "train_data= pd.read_csv (r'/Users/beepboop/Desktop/Machine learning/Group_project/visathon_train_data.csv')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "id": "ba3d5b18",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "(17654, 20)"
+      ]
+     },
+     "execution_count": 8,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "train_data.shape"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 10,
+   "id": "36818746",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>customer_id</th>\n",
+       "      <th>vintage</th>\n",
+       "      <th>age</th>\n",
+       "      <th>gender</th>\n",
+       "      <th>dependents</th>\n",
+       "      <th>occupation</th>\n",
+       "      <th>customer_nw_category</th>\n",
+       "      <th>branch_code</th>\n",
+       "      <th>days_since_last_transaction</th>\n",
+       "      <th>current_balance</th>\n",
+       "      <th>previous_month_end_balance</th>\n",
+       "      <th>average_monthly_balance_prevQ</th>\n",
+       "      <th>average_monthly_balance_prevQ2</th>\n",
+       "      <th>current_month_credit</th>\n",
+       "      <th>previous_month_credit</th>\n",
+       "      <th>current_month_debit</th>\n",
+       "      <th>previous_month_debit</th>\n",
+       "      <th>current_month_balance</th>\n",
+       "      <th>previous_month_balance</th>\n",
+       "      <th>churn</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0</th>\n",
+       "      <td>1.0</td>\n",
+       "      <td>3135.0</td>\n",
+       "      <td>66.0</td>\n",
+       "      <td>Male</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>Engineer</td>\n",
+       "      <td>Medium</td>\n",
+       "      <td>755.0</td>\n",
+       "      <td>224.0</td>\n",
+       "      <td>1458.71</td>\n",
+       "      <td>1458.71</td>\n",
+       "      <td>1458.71</td>\n",
+       "      <td>1449.07</td>\n",
+       "      <td>0.20</td>\n",
+       "      <td>0.20</td>\n",
+       "      <td>0.20</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>1458.71</td>\n",
+       "      <td>1458.71</td>\n",
+       "      <td>Yes</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1</th>\n",
+       "      <td>6.0</td>\n",
+       "      <td>2531.0</td>\n",
+       "      <td>42.0</td>\n",
+       "      <td>Male</td>\n",
+       "      <td>2.0</td>\n",
+       "      <td>Engineer</td>\n",
+       "      <td>Low</td>\n",
+       "      <td>388.0</td>\n",
+       "      <td>58.0</td>\n",
+       "      <td>927.72</td>\n",
+       "      <td>1401.72</td>\n",
+       "      <td>1643.31</td>\n",
+       "      <td>1871.12</td>\n",
+       "      <td>0.33</td>\n",
+       "      <td>714.61</td>\n",
+       "      <td>588.62</td>\n",
+       "      <td>1538.06</td>\n",
+       "      <td>1157.15</td>\n",
+       "      <td>1677.16</td>\n",
+       "      <td>No</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2</th>\n",
+       "      <td>7.0</td>\n",
+       "      <td>263.0</td>\n",
+       "      <td>42.0</td>\n",
+       "      <td>Female</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>Engineer</td>\n",
+       "      <td>Medium</td>\n",
+       "      <td>1666.0</td>\n",
+       "      <td>60.0</td>\n",
+       "      <td>15202.20</td>\n",
+       "      <td>16059.34</td>\n",
+       "      <td>15211.29</td>\n",
+       "      <td>13798.82</td>\n",
+       "      <td>0.36</td>\n",
+       "      <td>0.36</td>\n",
+       "      <td>857.50</td>\n",
+       "      <td>286.07</td>\n",
+       "      <td>15719.44</td>\n",
+       "      <td>15349.75</td>\n",
+       "      <td>Yes</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>3</th>\n",
+       "      <td>8.0</td>\n",
+       "      <td>5922.0</td>\n",
+       "      <td>72.0</td>\n",
+       "      <td>Male</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>Lawyer</td>\n",
+       "      <td>High</td>\n",
+       "      <td>1.0</td>\n",
+       "      <td>98.0</td>\n",
+       "      <td>7006.93</td>\n",
+       "      <td>7714.19</td>\n",
+       "      <td>7859.74</td>\n",
+       "      <td>11232.37</td>\n",
+       "      <td>0.64</td>\n",
+       "      <td>0.64</td>\n",
+       "      <td>1299.64</td>\n",
+       "      <td>439.26</td>\n",
+       "      <td>7076.06</td>\n",
+       "      <td>7755.98</td>\n",
+       "      <td>Yes</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>4</th>\n",
+       "      <td>9.0</td>\n",
+       "      <td>1145.0</td>\n",
+       "      <td>46.0</td>\n",
+       "      <td>Male</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>Engineer</td>\n",
+       "      <td>Medium</td>\n",
+       "      <td>317.0</td>\n",
+       "      <td>172.0</td>\n",
+       "      <td>10096.58</td>\n",
+       "      <td>8519.53</td>\n",
+       "      <td>6511.82</td>\n",
+       "      <td>16314.17</td>\n",
+       "      <td>0.27</td>\n",
+       "      <td>0.27</td>\n",
+       "      <td>443.13</td>\n",
+       "      <td>5688.44</td>\n",
+       "      <td>8563.84</td>\n",
+       "      <td>5317.04</td>\n",
+       "      <td>Yes</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>...</th>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>17649</th>\n",
+       "      <td>24208.0</td>\n",
+       "      <td>2004.0</td>\n",
+       "      <td>34.0</td>\n",
+       "      <td>Female</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>Engineer</td>\n",
+       "      <td>Medium</td>\n",
+       "      <td>275.0</td>\n",
+       "      <td>97.0</td>\n",
+       "      <td>2585.55</td>\n",
+       "      <td>2308.48</td>\n",
+       "      <td>2386.92</td>\n",
+       "      <td>3274.49</td>\n",
+       "      <td>0.26</td>\n",
+       "      <td>0.26</td>\n",
+       "      <td>8.50</td>\n",
+       "      <td>162.79</td>\n",
+       "      <td>2365.52</td>\n",
+       "      <td>2324.21</td>\n",
+       "      <td>Yes</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>17650</th>\n",
+       "      <td>24209.0</td>\n",
+       "      <td>1754.0</td>\n",
+       "      <td>48.0</td>\n",
+       "      <td>Male</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>Engineer</td>\n",
+       "      <td>Low</td>\n",
+       "      <td>1415.0</td>\n",
+       "      <td>56.0</td>\n",
+       "      <td>26474.05</td>\n",
+       "      <td>34.01</td>\n",
+       "      <td>7985.55</td>\n",
+       "      <td>1486.99</td>\n",
+       "      <td>0.09</td>\n",
+       "      <td>200.09</td>\n",
+       "      <td>188.61</td>\n",
+       "      <td>188.61</td>\n",
+       "      <td>23745.37</td>\n",
+       "      <td>38.98</td>\n",
+       "      <td>Yes</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>17651</th>\n",
+       "      <td>24210.0</td>\n",
+       "      <td>918.0</td>\n",
+       "      <td>35.0</td>\n",
+       "      <td>Female</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>Engineer</td>\n",
+       "      <td>Medium</td>\n",
+       "      <td>2545.0</td>\n",
+       "      <td>60.0</td>\n",
+       "      <td>2897.10</td>\n",
+       "      <td>4325.68</td>\n",
+       "      <td>3790.96</td>\n",
+       "      <td>4566.52</td>\n",
+       "      <td>0.30</td>\n",
+       "      <td>0.30</td>\n",
+       "      <td>1428.87</td>\n",
+       "      <td>714.59</td>\n",
+       "      <td>3389.72</td>\n",
+       "      <td>4325.68</td>\n",
+       "      <td>Yes</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>17652</th>\n",
+       "      <td>24211.0</td>\n",
+       "      <td>1680.0</td>\n",
+       "      <td>43.0</td>\n",
+       "      <td>Female</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>Engineer</td>\n",
+       "      <td>Low</td>\n",
+       "      <td>140.0</td>\n",
+       "      <td>339.0</td>\n",
+       "      <td>3227.34</td>\n",
+       "      <td>3227.34</td>\n",
+       "      <td>3227.34</td>\n",
+       "      <td>3207.12</td>\n",
+       "      <td>0.61</td>\n",
+       "      <td>0.61</td>\n",
+       "      <td>0.61</td>\n",
+       "      <td>0.61</td>\n",
+       "      <td>3227.34</td>\n",
+       "      <td>3227.34</td>\n",
+       "      <td>Yes</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>17653</th>\n",
+       "      <td>24212.0</td>\n",
+       "      <td>3441.0</td>\n",
+       "      <td>70.0</td>\n",
+       "      <td>Female</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>Lawyer</td>\n",
+       "      <td>Medium</td>\n",
+       "      <td>265.0</td>\n",
+       "      <td>32.0</td>\n",
+       "      <td>937.00</td>\n",
+       "      <td>965.57</td>\n",
+       "      <td>3167.26</td>\n",
+       "      <td>6232.00</td>\n",
+       "      <td>0.40</td>\n",
+       "      <td>3562.12</td>\n",
+       "      <td>14.69</td>\n",
+       "      <td>6728.97</td>\n",
+       "      <td>948.82</td>\n",
+       "      <td>4074.91</td>\n",
+       "      <td>No</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "<p>17654 rows × 20 columns</p>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "       customer_id  vintage   age  gender  dependents occupation  \\\n",
+       "0              1.0   3135.0  66.0    Male         0.0   Engineer   \n",
+       "1              6.0   2531.0  42.0    Male         2.0   Engineer   \n",
+       "2              7.0    263.0  42.0  Female         0.0   Engineer   \n",
+       "3              8.0   5922.0  72.0    Male         0.0     Lawyer   \n",
+       "4              9.0   1145.0  46.0    Male         0.0   Engineer   \n",
+       "...            ...      ...   ...     ...         ...        ...   \n",
+       "17649      24208.0   2004.0  34.0  Female         0.0   Engineer   \n",
+       "17650      24209.0   1754.0  48.0    Male         0.0   Engineer   \n",
+       "17651      24210.0    918.0  35.0  Female         0.0   Engineer   \n",
+       "17652      24211.0   1680.0  43.0  Female         0.0   Engineer   \n",
+       "17653      24212.0   3441.0  70.0  Female         0.0     Lawyer   \n",
+       "\n",
+       "      customer_nw_category  branch_code  days_since_last_transaction  \\\n",
+       "0                   Medium        755.0                        224.0   \n",
+       "1                      Low        388.0                         58.0   \n",
+       "2                   Medium       1666.0                         60.0   \n",
+       "3                     High          1.0                         98.0   \n",
+       "4                   Medium        317.0                        172.0   \n",
+       "...                    ...          ...                          ...   \n",
+       "17649               Medium        275.0                         97.0   \n",
+       "17650                  Low       1415.0                         56.0   \n",
+       "17651               Medium       2545.0                         60.0   \n",
+       "17652                  Low        140.0                        339.0   \n",
+       "17653               Medium        265.0                         32.0   \n",
+       "\n",
+       "       current_balance  previous_month_end_balance  \\\n",
+       "0              1458.71                     1458.71   \n",
+       "1               927.72                     1401.72   \n",
+       "2             15202.20                    16059.34   \n",
+       "3              7006.93                     7714.19   \n",
+       "4             10096.58                     8519.53   \n",
+       "...                ...                         ...   \n",
+       "17649          2585.55                     2308.48   \n",
+       "17650         26474.05                       34.01   \n",
+       "17651          2897.10                     4325.68   \n",
+       "17652          3227.34                     3227.34   \n",
+       "17653           937.00                      965.57   \n",
+       "\n",
+       "       average_monthly_balance_prevQ  average_monthly_balance_prevQ2  \\\n",
+       "0                            1458.71                         1449.07   \n",
+       "1                            1643.31                         1871.12   \n",
+       "2                           15211.29                        13798.82   \n",
+       "3                            7859.74                        11232.37   \n",
+       "4                            6511.82                        16314.17   \n",
+       "...                              ...                             ...   \n",
+       "17649                        2386.92                         3274.49   \n",
+       "17650                        7985.55                         1486.99   \n",
+       "17651                        3790.96                         4566.52   \n",
+       "17652                        3227.34                         3207.12   \n",
+       "17653                        3167.26                         6232.00   \n",
+       "\n",
+       "       current_month_credit  previous_month_credit  current_month_debit  \\\n",
+       "0                      0.20                   0.20                 0.20   \n",
+       "1                      0.33                 714.61               588.62   \n",
+       "2                      0.36                   0.36               857.50   \n",
+       "3                      0.64                   0.64              1299.64   \n",
+       "4                      0.27                   0.27               443.13   \n",
+       "...                     ...                    ...                  ...   \n",
+       "17649                  0.26                   0.26                 8.50   \n",
+       "17650                  0.09                 200.09               188.61   \n",
+       "17651                  0.30                   0.30              1428.87   \n",
+       "17652                  0.61                   0.61                 0.61   \n",
+       "17653                  0.40                3562.12                14.69   \n",
+       "\n",
+       "       previous_month_debit  current_month_balance  previous_month_balance  \\\n",
+       "0                       NaN                1458.71                 1458.71   \n",
+       "1                   1538.06                1157.15                 1677.16   \n",
+       "2                    286.07               15719.44                15349.75   \n",
+       "3                    439.26                7076.06                 7755.98   \n",
+       "4                   5688.44                8563.84                 5317.04   \n",
+       "...                     ...                    ...                     ...   \n",
+       "17649                162.79                2365.52                 2324.21   \n",
+       "17650                188.61               23745.37                   38.98   \n",
+       "17651                714.59                3389.72                 4325.68   \n",
+       "17652                  0.61                3227.34                 3227.34   \n",
+       "17653               6728.97                 948.82                 4074.91   \n",
+       "\n",
+       "      churn  \n",
+       "0       Yes  \n",
+       "1        No  \n",
+       "2       Yes  \n",
+       "3       Yes  \n",
+       "4       Yes  \n",
+       "...     ...  \n",
+       "17649   Yes  \n",
+       "17650   Yes  \n",
+       "17651   Yes  \n",
+       "17652   Yes  \n",
+       "17653    No  \n",
+       "\n",
+       "[17654 rows x 20 columns]"
+      ]
+     },
+     "execution_count": 10,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "train_data"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 11,
+   "id": "26433165",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "df=train_data.copy()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 12,
+   "id": "dab2a47b",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "df=df.replace({'nan':np.NaN})"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 13,
+   "id": "d49c5a7f",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>customer_id</th>\n",
+       "      <th>vintage</th>\n",
+       "      <th>age</th>\n",
+       "      <th>gender</th>\n",
+       "      <th>dependents</th>\n",
+       "      <th>occupation</th>\n",
+       "      <th>customer_nw_category</th>\n",
+       "      <th>branch_code</th>\n",
+       "      <th>days_since_last_transaction</th>\n",
+       "      <th>current_balance</th>\n",
+       "      <th>previous_month_end_balance</th>\n",
+       "      <th>average_monthly_balance_prevQ</th>\n",
+       "      <th>average_monthly_balance_prevQ2</th>\n",
+       "      <th>current_month_credit</th>\n",
+       "      <th>previous_month_credit</th>\n",
+       "      <th>current_month_debit</th>\n",
+       "      <th>previous_month_debit</th>\n",
+       "      <th>current_month_balance</th>\n",
+       "      <th>previous_month_balance</th>\n",
+       "      <th>churn</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0</th>\n",
+       "      <td>1.0</td>\n",
+       "      <td>3135.0</td>\n",
+       "      <td>66.0</td>\n",
+       "      <td>Male</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>Engineer</td>\n",
+       "      <td>Medium</td>\n",
+       "      <td>755.0</td>\n",
+       "      <td>224.0</td>\n",
+       "      <td>1458.71</td>\n",
+       "      <td>1458.71</td>\n",
+       "      <td>1458.71</td>\n",
+       "      <td>1449.07</td>\n",
+       "      <td>0.20</td>\n",
+       "      <td>0.20</td>\n",
+       "      <td>0.20</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>1458.71</td>\n",
+       "      <td>1458.71</td>\n",
+       "      <td>Yes</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1</th>\n",
+       "      <td>6.0</td>\n",
+       "      <td>2531.0</td>\n",
+       "      <td>42.0</td>\n",
+       "      <td>Male</td>\n",
+       "      <td>2.0</td>\n",
+       "      <td>Engineer</td>\n",
+       "      <td>Low</td>\n",
+       "      <td>388.0</td>\n",
+       "      <td>58.0</td>\n",
+       "      <td>927.72</td>\n",
+       "      <td>1401.72</td>\n",
+       "      <td>1643.31</td>\n",
+       "      <td>1871.12</td>\n",
+       "      <td>0.33</td>\n",
+       "      <td>714.61</td>\n",
+       "      <td>588.62</td>\n",
+       "      <td>1538.06</td>\n",
+       "      <td>1157.15</td>\n",
+       "      <td>1677.16</td>\n",
+       "      <td>No</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2</th>\n",
+       "      <td>7.0</td>\n",
+       "      <td>263.0</td>\n",
+       "      <td>42.0</td>\n",
+       "      <td>Female</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>Engineer</td>\n",
+       "      <td>Medium</td>\n",
+       "      <td>1666.0</td>\n",
+       "      <td>60.0</td>\n",
+       "      <td>15202.20</td>\n",
+       "      <td>16059.34</td>\n",
+       "      <td>15211.29</td>\n",
+       "      <td>13798.82</td>\n",
+       "      <td>0.36</td>\n",
+       "      <td>0.36</td>\n",
+       "      <td>857.50</td>\n",
+       "      <td>286.07</td>\n",
+       "      <td>15719.44</td>\n",
+       "      <td>15349.75</td>\n",
+       "      <td>Yes</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>3</th>\n",
+       "      <td>8.0</td>\n",
+       "      <td>5922.0</td>\n",
+       "      <td>72.0</td>\n",
+       "      <td>Male</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>Lawyer</td>\n",
+       "      <td>High</td>\n",
+       "      <td>1.0</td>\n",
+       "      <td>98.0</td>\n",
+       "      <td>7006.93</td>\n",
+       "      <td>7714.19</td>\n",
+       "      <td>7859.74</td>\n",
+       "      <td>11232.37</td>\n",
+       "      <td>0.64</td>\n",
+       "      <td>0.64</td>\n",
+       "      <td>1299.64</td>\n",
+       "      <td>439.26</td>\n",
+       "      <td>7076.06</td>\n",
+       "      <td>7755.98</td>\n",
+       "      <td>Yes</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>4</th>\n",
+       "      <td>9.0</td>\n",
+       "      <td>1145.0</td>\n",
+       "      <td>46.0</td>\n",
+       "      <td>Male</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>Engineer</td>\n",
+       "      <td>Medium</td>\n",
+       "      <td>317.0</td>\n",
+       "      <td>172.0</td>\n",
+       "      <td>10096.58</td>\n",
+       "      <td>8519.53</td>\n",
+       "      <td>6511.82</td>\n",
+       "      <td>16314.17</td>\n",
+       "      <td>0.27</td>\n",
+       "      <td>0.27</td>\n",
+       "      <td>443.13</td>\n",
+       "      <td>5688.44</td>\n",
+       "      <td>8563.84</td>\n",
+       "      <td>5317.04</td>\n",
+       "      <td>Yes</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>...</th>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>17649</th>\n",
+       "      <td>24208.0</td>\n",
+       "      <td>2004.0</td>\n",
+       "      <td>34.0</td>\n",
+       "      <td>Female</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>Engineer</td>\n",
+       "      <td>Medium</td>\n",
+       "      <td>275.0</td>\n",
+       "      <td>97.0</td>\n",
+       "      <td>2585.55</td>\n",
+       "      <td>2308.48</td>\n",
+       "      <td>2386.92</td>\n",
+       "      <td>3274.49</td>\n",
+       "      <td>0.26</td>\n",
+       "      <td>0.26</td>\n",
+       "      <td>8.50</td>\n",
+       "      <td>162.79</td>\n",
+       "      <td>2365.52</td>\n",
+       "      <td>2324.21</td>\n",
+       "      <td>Yes</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>17650</th>\n",
+       "      <td>24209.0</td>\n",
+       "      <td>1754.0</td>\n",
+       "      <td>48.0</td>\n",
+       "      <td>Male</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>Engineer</td>\n",
+       "      <td>Low</td>\n",
+       "      <td>1415.0</td>\n",
+       "      <td>56.0</td>\n",
+       "      <td>26474.05</td>\n",
+       "      <td>34.01</td>\n",
+       "      <td>7985.55</td>\n",
+       "      <td>1486.99</td>\n",
+       "      <td>0.09</td>\n",
+       "      <td>200.09</td>\n",
+       "      <td>188.61</td>\n",
+       "      <td>188.61</td>\n",
+       "      <td>23745.37</td>\n",
+       "      <td>38.98</td>\n",
+       "      <td>Yes</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>17651</th>\n",
+       "      <td>24210.0</td>\n",
+       "      <td>918.0</td>\n",
+       "      <td>35.0</td>\n",
+       "      <td>Female</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>Engineer</td>\n",
+       "      <td>Medium</td>\n",
+       "      <td>2545.0</td>\n",
+       "      <td>60.0</td>\n",
+       "      <td>2897.10</td>\n",
+       "      <td>4325.68</td>\n",
+       "      <td>3790.96</td>\n",
+       "      <td>4566.52</td>\n",
+       "      <td>0.30</td>\n",
+       "      <td>0.30</td>\n",
+       "      <td>1428.87</td>\n",
+       "      <td>714.59</td>\n",
+       "      <td>3389.72</td>\n",
+       "      <td>4325.68</td>\n",
+       "      <td>Yes</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>17652</th>\n",
+       "      <td>24211.0</td>\n",
+       "      <td>1680.0</td>\n",
+       "      <td>43.0</td>\n",
+       "      <td>Female</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>Engineer</td>\n",
+       "      <td>Low</td>\n",
+       "      <td>140.0</td>\n",
+       "      <td>339.0</td>\n",
+       "      <td>3227.34</td>\n",
+       "      <td>3227.34</td>\n",
+       "      <td>3227.34</td>\n",
+       "      <td>3207.12</td>\n",
+       "      <td>0.61</td>\n",
+       "      <td>0.61</td>\n",
+       "      <td>0.61</td>\n",
+       "      <td>0.61</td>\n",
+       "      <td>3227.34</td>\n",
+       "      <td>3227.34</td>\n",
+       "      <td>Yes</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>17653</th>\n",
+       "      <td>24212.0</td>\n",
+       "      <td>3441.0</td>\n",
+       "      <td>70.0</td>\n",
+       "      <td>Female</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>Lawyer</td>\n",
+       "      <td>Medium</td>\n",
+       "      <td>265.0</td>\n",
+       "      <td>32.0</td>\n",
+       "      <td>937.00</td>\n",
+       "      <td>965.57</td>\n",
+       "      <td>3167.26</td>\n",
+       "      <td>6232.00</td>\n",
+       "      <td>0.40</td>\n",
+       "      <td>3562.12</td>\n",
+       "      <td>14.69</td>\n",
+       "      <td>6728.97</td>\n",
+       "      <td>948.82</td>\n",
+       "      <td>4074.91</td>\n",
+       "      <td>No</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "<p>17654 rows × 20 columns</p>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "       customer_id  vintage   age  gender  dependents occupation  \\\n",
+       "0              1.0   3135.0  66.0    Male         0.0   Engineer   \n",
+       "1              6.0   2531.0  42.0    Male         2.0   Engineer   \n",
+       "2              7.0    263.0  42.0  Female         0.0   Engineer   \n",
+       "3              8.0   5922.0  72.0    Male         0.0     Lawyer   \n",
+       "4              9.0   1145.0  46.0    Male         0.0   Engineer   \n",
+       "...            ...      ...   ...     ...         ...        ...   \n",
+       "17649      24208.0   2004.0  34.0  Female         0.0   Engineer   \n",
+       "17650      24209.0   1754.0  48.0    Male         0.0   Engineer   \n",
+       "17651      24210.0    918.0  35.0  Female         0.0   Engineer   \n",
+       "17652      24211.0   1680.0  43.0  Female         0.0   Engineer   \n",
+       "17653      24212.0   3441.0  70.0  Female         0.0     Lawyer   \n",
+       "\n",
+       "      customer_nw_category  branch_code  days_since_last_transaction  \\\n",
+       "0                   Medium        755.0                        224.0   \n",
+       "1                      Low        388.0                         58.0   \n",
+       "2                   Medium       1666.0                         60.0   \n",
+       "3                     High          1.0                         98.0   \n",
+       "4                   Medium        317.0                        172.0   \n",
+       "...                    ...          ...                          ...   \n",
+       "17649               Medium        275.0                         97.0   \n",
+       "17650                  Low       1415.0                         56.0   \n",
+       "17651               Medium       2545.0                         60.0   \n",
+       "17652                  Low        140.0                        339.0   \n",
+       "17653               Medium        265.0                         32.0   \n",
+       "\n",
+       "       current_balance  previous_month_end_balance  \\\n",
+       "0              1458.71                     1458.71   \n",
+       "1               927.72                     1401.72   \n",
+       "2             15202.20                    16059.34   \n",
+       "3              7006.93                     7714.19   \n",
+       "4             10096.58                     8519.53   \n",
+       "...                ...                         ...   \n",
+       "17649          2585.55                     2308.48   \n",
+       "17650         26474.05                       34.01   \n",
+       "17651          2897.10                     4325.68   \n",
+       "17652          3227.34                     3227.34   \n",
+       "17653           937.00                      965.57   \n",
+       "\n",
+       "       average_monthly_balance_prevQ  average_monthly_balance_prevQ2  \\\n",
+       "0                            1458.71                         1449.07   \n",
+       "1                            1643.31                         1871.12   \n",
+       "2                           15211.29                        13798.82   \n",
+       "3                            7859.74                        11232.37   \n",
+       "4                            6511.82                        16314.17   \n",
+       "...                              ...                             ...   \n",
+       "17649                        2386.92                         3274.49   \n",
+       "17650                        7985.55                         1486.99   \n",
+       "17651                        3790.96                         4566.52   \n",
+       "17652                        3227.34                         3207.12   \n",
+       "17653                        3167.26                         6232.00   \n",
+       "\n",
+       "       current_month_credit  previous_month_credit  current_month_debit  \\\n",
+       "0                      0.20                   0.20                 0.20   \n",
+       "1                      0.33                 714.61               588.62   \n",
+       "2                      0.36                   0.36               857.50   \n",
+       "3                      0.64                   0.64              1299.64   \n",
+       "4                      0.27                   0.27               443.13   \n",
+       "...                     ...                    ...                  ...   \n",
+       "17649                  0.26                   0.26                 8.50   \n",
+       "17650                  0.09                 200.09               188.61   \n",
+       "17651                  0.30                   0.30              1428.87   \n",
+       "17652                  0.61                   0.61                 0.61   \n",
+       "17653                  0.40                3562.12                14.69   \n",
+       "\n",
+       "       previous_month_debit  current_month_balance  previous_month_balance  \\\n",
+       "0                       NaN                1458.71                 1458.71   \n",
+       "1                   1538.06                1157.15                 1677.16   \n",
+       "2                    286.07               15719.44                15349.75   \n",
+       "3                    439.26                7076.06                 7755.98   \n",
+       "4                   5688.44                8563.84                 5317.04   \n",
+       "...                     ...                    ...                     ...   \n",
+       "17649                162.79                2365.52                 2324.21   \n",
+       "17650                188.61               23745.37                   38.98   \n",
+       "17651                714.59                3389.72                 4325.68   \n",
+       "17652                  0.61                3227.34                 3227.34   \n",
+       "17653               6728.97                 948.82                 4074.91   \n",
+       "\n",
+       "      churn  \n",
+       "0       Yes  \n",
+       "1        No  \n",
+       "2       Yes  \n",
+       "3       Yes  \n",
+       "4       Yes  \n",
+       "...     ...  \n",
+       "17649   Yes  \n",
+       "17650   Yes  \n",
+       "17651   Yes  \n",
+       "17652   Yes  \n",
+       "17653    No  \n",
+       "\n",
+       "[17654 rows x 20 columns]"
+      ]
+     },
+     "execution_count": 13,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 14,
+   "id": "9250fb5d",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "nf=df.copy()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 15,
+   "id": "2c85dd33",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "#######The below code makes churn binary classifier\n",
+    "nf['churn'] = df['churn'].map({'Yes': 1, 'No': 0})"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 16,
+   "id": "a672c9c7",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>customer_id</th>\n",
+       "      <th>vintage</th>\n",
+       "      <th>age</th>\n",
+       "      <th>gender</th>\n",
+       "      <th>dependents</th>\n",
+       "      <th>occupation</th>\n",
+       "      <th>customer_nw_category</th>\n",
+       "      <th>branch_code</th>\n",
+       "      <th>days_since_last_transaction</th>\n",
+       "      <th>current_balance</th>\n",
+       "      <th>previous_month_end_balance</th>\n",
+       "      <th>average_monthly_balance_prevQ</th>\n",
+       "      <th>average_monthly_balance_prevQ2</th>\n",
+       "      <th>current_month_credit</th>\n",
+       "      <th>previous_month_credit</th>\n",
+       "      <th>current_month_debit</th>\n",
+       "      <th>previous_month_debit</th>\n",
+       "      <th>current_month_balance</th>\n",
+       "      <th>previous_month_balance</th>\n",
+       "      <th>churn</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0</th>\n",
+       "      <td>1.0</td>\n",
+       "      <td>3135.0</td>\n",
+       "      <td>66.0</td>\n",
+       "      <td>Male</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>Engineer</td>\n",
+       "      <td>Medium</td>\n",
+       "      <td>755.0</td>\n",
+       "      <td>224.0</td>\n",
+       "      <td>1458.71</td>\n",
+       "      <td>1458.71</td>\n",
+       "      <td>1458.71</td>\n",
+       "      <td>1449.07</td>\n",
+       "      <td>0.20</td>\n",
+       "      <td>0.20</td>\n",
+       "      <td>0.20</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>1458.71</td>\n",
+       "      <td>1458.71</td>\n",
+       "      <td>1</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1</th>\n",
+       "      <td>6.0</td>\n",
+       "      <td>2531.0</td>\n",
+       "      <td>42.0</td>\n",
+       "      <td>Male</td>\n",
+       "      <td>2.0</td>\n",
+       "      <td>Engineer</td>\n",
+       "      <td>Low</td>\n",
+       "      <td>388.0</td>\n",
+       "      <td>58.0</td>\n",
+       "      <td>927.72</td>\n",
+       "      <td>1401.72</td>\n",
+       "      <td>1643.31</td>\n",
+       "      <td>1871.12</td>\n",
+       "      <td>0.33</td>\n",
+       "      <td>714.61</td>\n",
+       "      <td>588.62</td>\n",
+       "      <td>1538.06</td>\n",
+       "      <td>1157.15</td>\n",
+       "      <td>1677.16</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2</th>\n",
+       "      <td>7.0</td>\n",
+       "      <td>263.0</td>\n",
+       "      <td>42.0</td>\n",
+       "      <td>Female</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>Engineer</td>\n",
+       "      <td>Medium</td>\n",
+       "      <td>1666.0</td>\n",
+       "      <td>60.0</td>\n",
+       "      <td>15202.20</td>\n",
+       "      <td>16059.34</td>\n",
+       "      <td>15211.29</td>\n",
+       "      <td>13798.82</td>\n",
+       "      <td>0.36</td>\n",
+       "      <td>0.36</td>\n",
+       "      <td>857.50</td>\n",
+       "      <td>286.07</td>\n",
+       "      <td>15719.44</td>\n",
+       "      <td>15349.75</td>\n",
+       "      <td>1</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>3</th>\n",
+       "      <td>8.0</td>\n",
+       "      <td>5922.0</td>\n",
+       "      <td>72.0</td>\n",
+       "      <td>Male</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>Lawyer</td>\n",
+       "      <td>High</td>\n",
+       "      <td>1.0</td>\n",
+       "      <td>98.0</td>\n",
+       "      <td>7006.93</td>\n",
+       "      <td>7714.19</td>\n",
+       "      <td>7859.74</td>\n",
+       "      <td>11232.37</td>\n",
+       "      <td>0.64</td>\n",
+       "      <td>0.64</td>\n",
+       "      <td>1299.64</td>\n",
+       "      <td>439.26</td>\n",
+       "      <td>7076.06</td>\n",
+       "      <td>7755.98</td>\n",
+       "      <td>1</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>4</th>\n",
+       "      <td>9.0</td>\n",
+       "      <td>1145.0</td>\n",
+       "      <td>46.0</td>\n",
+       "      <td>Male</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>Engineer</td>\n",
+       "      <td>Medium</td>\n",
+       "      <td>317.0</td>\n",
+       "      <td>172.0</td>\n",
+       "      <td>10096.58</td>\n",
+       "      <td>8519.53</td>\n",
+       "      <td>6511.82</td>\n",
+       "      <td>16314.17</td>\n",
+       "      <td>0.27</td>\n",
+       "      <td>0.27</td>\n",
+       "      <td>443.13</td>\n",
+       "      <td>5688.44</td>\n",
+       "      <td>8563.84</td>\n",
+       "      <td>5317.04</td>\n",
+       "      <td>1</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>...</th>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>17649</th>\n",
+       "      <td>24208.0</td>\n",
+       "      <td>2004.0</td>\n",
+       "      <td>34.0</td>\n",
+       "      <td>Female</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>Engineer</td>\n",
+       "      <td>Medium</td>\n",
+       "      <td>275.0</td>\n",
+       "      <td>97.0</td>\n",
+       "      <td>2585.55</td>\n",
+       "      <td>2308.48</td>\n",
+       "      <td>2386.92</td>\n",
+       "      <td>3274.49</td>\n",
+       "      <td>0.26</td>\n",
+       "      <td>0.26</td>\n",
+       "      <td>8.50</td>\n",
+       "      <td>162.79</td>\n",
+       "      <td>2365.52</td>\n",
+       "      <td>2324.21</td>\n",
+       "      <td>1</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>17650</th>\n",
+       "      <td>24209.0</td>\n",
+       "      <td>1754.0</td>\n",
+       "      <td>48.0</td>\n",
+       "      <td>Male</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>Engineer</td>\n",
+       "      <td>Low</td>\n",
+       "      <td>1415.0</td>\n",
+       "      <td>56.0</td>\n",
+       "      <td>26474.05</td>\n",
+       "      <td>34.01</td>\n",
+       "      <td>7985.55</td>\n",
+       "      <td>1486.99</td>\n",
+       "      <td>0.09</td>\n",
+       "      <td>200.09</td>\n",
+       "      <td>188.61</td>\n",
+       "      <td>188.61</td>\n",
+       "      <td>23745.37</td>\n",
+       "      <td>38.98</td>\n",
+       "      <td>1</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>17651</th>\n",
+       "      <td>24210.0</td>\n",
+       "      <td>918.0</td>\n",
+       "      <td>35.0</td>\n",
+       "      <td>Female</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>Engineer</td>\n",
+       "      <td>Medium</td>\n",
+       "      <td>2545.0</td>\n",
+       "      <td>60.0</td>\n",
+       "      <td>2897.10</td>\n",
+       "      <td>4325.68</td>\n",
+       "      <td>3790.96</td>\n",
+       "      <td>4566.52</td>\n",
+       "      <td>0.30</td>\n",
+       "      <td>0.30</td>\n",
+       "      <td>1428.87</td>\n",
+       "      <td>714.59</td>\n",
+       "      <td>3389.72</td>\n",
+       "      <td>4325.68</td>\n",
+       "      <td>1</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>17652</th>\n",
+       "      <td>24211.0</td>\n",
+       "      <td>1680.0</td>\n",
+       "      <td>43.0</td>\n",
+       "      <td>Female</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>Engineer</td>\n",
+       "      <td>Low</td>\n",
+       "      <td>140.0</td>\n",
+       "      <td>339.0</td>\n",
+       "      <td>3227.34</td>\n",
+       "      <td>3227.34</td>\n",
+       "      <td>3227.34</td>\n",
+       "      <td>3207.12</td>\n",
+       "      <td>0.61</td>\n",
+       "      <td>0.61</td>\n",
+       "      <td>0.61</td>\n",
+       "      <td>0.61</td>\n",
+       "      <td>3227.34</td>\n",
+       "      <td>3227.34</td>\n",
+       "      <td>1</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>17653</th>\n",
+       "      <td>24212.0</td>\n",
+       "      <td>3441.0</td>\n",
+       "      <td>70.0</td>\n",
+       "      <td>Female</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>Lawyer</td>\n",
+       "      <td>Medium</td>\n",
+       "      <td>265.0</td>\n",
+       "      <td>32.0</td>\n",
+       "      <td>937.00</td>\n",
+       "      <td>965.57</td>\n",
+       "      <td>3167.26</td>\n",
+       "      <td>6232.00</td>\n",
+       "      <td>0.40</td>\n",
+       "      <td>3562.12</td>\n",
+       "      <td>14.69</td>\n",
+       "      <td>6728.97</td>\n",
+       "      <td>948.82</td>\n",
+       "      <td>4074.91</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "<p>17654 rows × 20 columns</p>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "       customer_id  vintage   age  gender  dependents occupation  \\\n",
+       "0              1.0   3135.0  66.0    Male         0.0   Engineer   \n",
+       "1              6.0   2531.0  42.0    Male         2.0   Engineer   \n",
+       "2              7.0    263.0  42.0  Female         0.0   Engineer   \n",
+       "3              8.0   5922.0  72.0    Male         0.0     Lawyer   \n",
+       "4              9.0   1145.0  46.0    Male         0.0   Engineer   \n",
+       "...            ...      ...   ...     ...         ...        ...   \n",
+       "17649      24208.0   2004.0  34.0  Female         0.0   Engineer   \n",
+       "17650      24209.0   1754.0  48.0    Male         0.0   Engineer   \n",
+       "17651      24210.0    918.0  35.0  Female         0.0   Engineer   \n",
+       "17652      24211.0   1680.0  43.0  Female         0.0   Engineer   \n",
+       "17653      24212.0   3441.0  70.0  Female         0.0     Lawyer   \n",
+       "\n",
+       "      customer_nw_category  branch_code  days_since_last_transaction  \\\n",
+       "0                   Medium        755.0                        224.0   \n",
+       "1                      Low        388.0                         58.0   \n",
+       "2                   Medium       1666.0                         60.0   \n",
+       "3                     High          1.0                         98.0   \n",
+       "4                   Medium        317.0                        172.0   \n",
+       "...                    ...          ...                          ...   \n",
+       "17649               Medium        275.0                         97.0   \n",
+       "17650                  Low       1415.0                         56.0   \n",
+       "17651               Medium       2545.0                         60.0   \n",
+       "17652                  Low        140.0                        339.0   \n",
+       "17653               Medium        265.0                         32.0   \n",
+       "\n",
+       "       current_balance  previous_month_end_balance  \\\n",
+       "0              1458.71                     1458.71   \n",
+       "1               927.72                     1401.72   \n",
+       "2             15202.20                    16059.34   \n",
+       "3              7006.93                     7714.19   \n",
+       "4             10096.58                     8519.53   \n",
+       "...                ...                         ...   \n",
+       "17649          2585.55                     2308.48   \n",
+       "17650         26474.05                       34.01   \n",
+       "17651          2897.10                     4325.68   \n",
+       "17652          3227.34                     3227.34   \n",
+       "17653           937.00                      965.57   \n",
+       "\n",
+       "       average_monthly_balance_prevQ  average_monthly_balance_prevQ2  \\\n",
+       "0                            1458.71                         1449.07   \n",
+       "1                            1643.31                         1871.12   \n",
+       "2                           15211.29                        13798.82   \n",
+       "3                            7859.74                        11232.37   \n",
+       "4                            6511.82                        16314.17   \n",
+       "...                              ...                             ...   \n",
+       "17649                        2386.92                         3274.49   \n",
+       "17650                        7985.55                         1486.99   \n",
+       "17651                        3790.96                         4566.52   \n",
+       "17652                        3227.34                         3207.12   \n",
+       "17653                        3167.26                         6232.00   \n",
+       "\n",
+       "       current_month_credit  previous_month_credit  current_month_debit  \\\n",
+       "0                      0.20                   0.20                 0.20   \n",
+       "1                      0.33                 714.61               588.62   \n",
+       "2                      0.36                   0.36               857.50   \n",
+       "3                      0.64                   0.64              1299.64   \n",
+       "4                      0.27                   0.27               443.13   \n",
+       "...                     ...                    ...                  ...   \n",
+       "17649                  0.26                   0.26                 8.50   \n",
+       "17650                  0.09                 200.09               188.61   \n",
+       "17651                  0.30                   0.30              1428.87   \n",
+       "17652                  0.61                   0.61                 0.61   \n",
+       "17653                  0.40                3562.12                14.69   \n",
+       "\n",
+       "       previous_month_debit  current_month_balance  previous_month_balance  \\\n",
+       "0                       NaN                1458.71                 1458.71   \n",
+       "1                   1538.06                1157.15                 1677.16   \n",
+       "2                    286.07               15719.44                15349.75   \n",
+       "3                    439.26                7076.06                 7755.98   \n",
+       "4                   5688.44                8563.84                 5317.04   \n",
+       "...                     ...                    ...                     ...   \n",
+       "17649                162.79                2365.52                 2324.21   \n",
+       "17650                188.61               23745.37                   38.98   \n",
+       "17651                714.59                3389.72                 4325.68   \n",
+       "17652                  0.61                3227.34                 3227.34   \n",
+       "17653               6728.97                 948.82                 4074.91   \n",
+       "\n",
+       "       churn  \n",
+       "0          1  \n",
+       "1          0  \n",
+       "2          1  \n",
+       "3          1  \n",
+       "4          1  \n",
+       "...      ...  \n",
+       "17649      1  \n",
+       "17650      1  \n",
+       "17651      1  \n",
+       "17652      1  \n",
+       "17653      0  \n",
+       "\n",
+       "[17654 rows x 20 columns]"
+      ]
+     },
+     "execution_count": 16,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "nf"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 33,
+   "id": "bd780ced",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>customer_id</th>\n",
+       "      <th>vintage</th>\n",
+       "      <th>age</th>\n",
+       "      <th>gender</th>\n",
+       "      <th>dependents</th>\n",
+       "      <th>occupation</th>\n",
+       "      <th>customer_nw_category</th>\n",
+       "      <th>branch_code</th>\n",
+       "      <th>days_since_last_transaction</th>\n",
+       "      <th>current_balance</th>\n",
+       "      <th>previous_month_end_balance</th>\n",
+       "      <th>average_monthly_balance_prevQ</th>\n",
+       "      <th>average_monthly_balance_prevQ2</th>\n",
+       "      <th>current_month_credit</th>\n",
+       "      <th>previous_month_credit</th>\n",
+       "      <th>current_month_debit</th>\n",
+       "      <th>previous_month_debit</th>\n",
+       "      <th>current_month_balance</th>\n",
+       "      <th>previous_month_balance</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>2</th>\n",
+       "      <td>7.0</td>\n",
+       "      <td>263.0</td>\n",
+       "      <td>42.0</td>\n",
+       "      <td>Female</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>Engineer</td>\n",
+       "      <td>Medium</td>\n",
+       "      <td>1666.0</td>\n",
+       "      <td>60.0</td>\n",
+       "      <td>15202.20</td>\n",
+       "      <td>16059.34</td>\n",
+       "      <td>15211.29</td>\n",
+       "      <td>13798.82</td>\n",
+       "      <td>0.36</td>\n",
+       "      <td>0.36</td>\n",
+       "      <td>857.50</td>\n",
+       "      <td>286.07</td>\n",
+       "      <td>15719.44</td>\n",
+       "      <td>15349.75</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>3</th>\n",
+       "      <td>8.0</td>\n",
+       "      <td>5922.0</td>\n",
+       "      <td>72.0</td>\n",
+       "      <td>Male</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>Lawyer</td>\n",
+       "      <td>High</td>\n",
+       "      <td>1.0</td>\n",
+       "      <td>98.0</td>\n",
+       "      <td>7006.93</td>\n",
+       "      <td>7714.19</td>\n",
+       "      <td>7859.74</td>\n",
+       "      <td>11232.37</td>\n",
+       "      <td>0.64</td>\n",
+       "      <td>0.64</td>\n",
+       "      <td>1299.64</td>\n",
+       "      <td>439.26</td>\n",
+       "      <td>7076.06</td>\n",
+       "      <td>7755.98</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>4</th>\n",
+       "      <td>9.0</td>\n",
+       "      <td>1145.0</td>\n",
+       "      <td>46.0</td>\n",
+       "      <td>Male</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>Engineer</td>\n",
+       "      <td>Medium</td>\n",
+       "      <td>317.0</td>\n",
+       "      <td>172.0</td>\n",
+       "      <td>10096.58</td>\n",
+       "      <td>8519.53</td>\n",
+       "      <td>6511.82</td>\n",
+       "      <td>16314.17</td>\n",
+       "      <td>0.27</td>\n",
+       "      <td>0.27</td>\n",
+       "      <td>443.13</td>\n",
+       "      <td>5688.44</td>\n",
+       "      <td>8563.84</td>\n",
+       "      <td>5317.04</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>5</th>\n",
+       "      <td>10.0</td>\n",
+       "      <td>2132.0</td>\n",
+       "      <td>31.0</td>\n",
+       "      <td>Male</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>Accountant</td>\n",
+       "      <td>Medium</td>\n",
+       "      <td>4110.0</td>\n",
+       "      <td>19.0</td>\n",
+       "      <td>1355.86</td>\n",
+       "      <td>1355.86</td>\n",
+       "      <td>1702.44</td>\n",
+       "      <td>1126.13</td>\n",
+       "      <td>714.51</td>\n",
+       "      <td>121.09</td>\n",
+       "      <td>714.51</td>\n",
+       "      <td>359.44</td>\n",
+       "      <td>1183.45</td>\n",
+       "      <td>1857.42</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>6</th>\n",
+       "      <td>11.0</td>\n",
+       "      <td>3379.0</td>\n",
+       "      <td>40.0</td>\n",
+       "      <td>Male</td>\n",
+       "      <td>3.0</td>\n",
+       "      <td>Engineer</td>\n",
+       "      <td>Medium</td>\n",
+       "      <td>38.0</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>4957.95</td>\n",
+       "      <td>4244.38</td>\n",
+       "      <td>2168.53</td>\n",
+       "      <td>1864.33</td>\n",
+       "      <td>6912.29</td>\n",
+       "      <td>4206.13</td>\n",
+       "      <td>1887.30</td>\n",
+       "      <td>1348.85</td>\n",
+       "      <td>1823.16</td>\n",
+       "      <td>2416.69</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>...</th>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>17649</th>\n",
+       "      <td>24208.0</td>\n",
+       "      <td>2004.0</td>\n",
+       "      <td>34.0</td>\n",
+       "      <td>Female</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>Engineer</td>\n",
+       "      <td>Medium</td>\n",
+       "      <td>275.0</td>\n",
+       "      <td>97.0</td>\n",
+       "      <td>2585.55</td>\n",
+       "      <td>2308.48</td>\n",
+       "      <td>2386.92</td>\n",
+       "      <td>3274.49</td>\n",
+       "      <td>0.26</td>\n",
+       "      <td>0.26</td>\n",
+       "      <td>8.50</td>\n",
+       "      <td>162.79</td>\n",
+       "      <td>2365.52</td>\n",
+       "      <td>2324.21</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>17650</th>\n",
+       "      <td>24209.0</td>\n",
+       "      <td>1754.0</td>\n",
+       "      <td>48.0</td>\n",
+       "      <td>Male</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>Engineer</td>\n",
+       "      <td>Low</td>\n",
+       "      <td>1415.0</td>\n",
+       "      <td>56.0</td>\n",
+       "      <td>26474.05</td>\n",
+       "      <td>34.01</td>\n",
+       "      <td>7985.55</td>\n",
+       "      <td>1486.99</td>\n",
+       "      <td>0.09</td>\n",
+       "      <td>200.09</td>\n",
+       "      <td>188.61</td>\n",
+       "      <td>188.61</td>\n",
+       "      <td>23745.37</td>\n",
+       "      <td>38.98</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>17651</th>\n",
+       "      <td>24210.0</td>\n",
+       "      <td>918.0</td>\n",
+       "      <td>35.0</td>\n",
+       "      <td>Female</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>Engineer</td>\n",
+       "      <td>Medium</td>\n",
+       "      <td>2545.0</td>\n",
+       "      <td>60.0</td>\n",
+       "      <td>2897.10</td>\n",
+       "      <td>4325.68</td>\n",
+       "      <td>3790.96</td>\n",
+       "      <td>4566.52</td>\n",
+       "      <td>0.30</td>\n",
+       "      <td>0.30</td>\n",
+       "      <td>1428.87</td>\n",
+       "      <td>714.59</td>\n",
+       "      <td>3389.72</td>\n",
+       "      <td>4325.68</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>17652</th>\n",
+       "      <td>24211.0</td>\n",
+       "      <td>1680.0</td>\n",
+       "      <td>43.0</td>\n",
+       "      <td>Female</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>Engineer</td>\n",
+       "      <td>Low</td>\n",
+       "      <td>140.0</td>\n",
+       "      <td>339.0</td>\n",
+       "      <td>3227.34</td>\n",
+       "      <td>3227.34</td>\n",
+       "      <td>3227.34</td>\n",
+       "      <td>3207.12</td>\n",
+       "      <td>0.61</td>\n",
+       "      <td>0.61</td>\n",
+       "      <td>0.61</td>\n",
+       "      <td>0.61</td>\n",
+       "      <td>3227.34</td>\n",
+       "      <td>3227.34</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>17653</th>\n",
+       "      <td>24212.0</td>\n",
+       "      <td>3441.0</td>\n",
+       "      <td>70.0</td>\n",
+       "      <td>Female</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>Lawyer</td>\n",
+       "      <td>Medium</td>\n",
+       "      <td>265.0</td>\n",
+       "      <td>32.0</td>\n",
+       "      <td>937.00</td>\n",
+       "      <td>965.57</td>\n",
+       "      <td>3167.26</td>\n",
+       "      <td>6232.00</td>\n",
+       "      <td>0.40</td>\n",
+       "      <td>3562.12</td>\n",
+       "      <td>14.69</td>\n",
+       "      <td>6728.97</td>\n",
+       "      <td>948.82</td>\n",
+       "      <td>4074.91</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "<p>17652 rows × 19 columns</p>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "       customer_id  vintage   age  gender  dependents  occupation  \\\n",
+       "2              7.0    263.0  42.0  Female         0.0    Engineer   \n",
+       "3              8.0   5922.0  72.0    Male         0.0      Lawyer   \n",
+       "4              9.0   1145.0  46.0    Male         0.0    Engineer   \n",
+       "5             10.0   2132.0  31.0    Male         0.0  Accountant   \n",
+       "6             11.0   3379.0  40.0    Male         3.0    Engineer   \n",
+       "...            ...      ...   ...     ...         ...         ...   \n",
+       "17649      24208.0   2004.0  34.0  Female         0.0    Engineer   \n",
+       "17650      24209.0   1754.0  48.0    Male         0.0    Engineer   \n",
+       "17651      24210.0    918.0  35.0  Female         0.0    Engineer   \n",
+       "17652      24211.0   1680.0  43.0  Female         0.0    Engineer   \n",
+       "17653      24212.0   3441.0  70.0  Female         0.0      Lawyer   \n",
+       "\n",
+       "      customer_nw_category  branch_code  days_since_last_transaction  \\\n",
+       "2                   Medium       1666.0                         60.0   \n",
+       "3                     High          1.0                         98.0   \n",
+       "4                   Medium        317.0                        172.0   \n",
+       "5                   Medium       4110.0                         19.0   \n",
+       "6                   Medium         38.0                          0.0   \n",
+       "...                    ...          ...                          ...   \n",
+       "17649               Medium        275.0                         97.0   \n",
+       "17650                  Low       1415.0                         56.0   \n",
+       "17651               Medium       2545.0                         60.0   \n",
+       "17652                  Low        140.0                        339.0   \n",
+       "17653               Medium        265.0                         32.0   \n",
+       "\n",
+       "       current_balance  previous_month_end_balance  \\\n",
+       "2             15202.20                    16059.34   \n",
+       "3              7006.93                     7714.19   \n",
+       "4             10096.58                     8519.53   \n",
+       "5              1355.86                     1355.86   \n",
+       "6              4957.95                     4244.38   \n",
+       "...                ...                         ...   \n",
+       "17649          2585.55                     2308.48   \n",
+       "17650         26474.05                       34.01   \n",
+       "17651          2897.10                     4325.68   \n",
+       "17652          3227.34                     3227.34   \n",
+       "17653           937.00                      965.57   \n",
+       "\n",
+       "       average_monthly_balance_prevQ  average_monthly_balance_prevQ2  \\\n",
+       "2                           15211.29                        13798.82   \n",
+       "3                            7859.74                        11232.37   \n",
+       "4                            6511.82                        16314.17   \n",
+       "5                            1702.44                         1126.13   \n",
+       "6                            2168.53                         1864.33   \n",
+       "...                              ...                             ...   \n",
+       "17649                        2386.92                         3274.49   \n",
+       "17650                        7985.55                         1486.99   \n",
+       "17651                        3790.96                         4566.52   \n",
+       "17652                        3227.34                         3207.12   \n",
+       "17653                        3167.26                         6232.00   \n",
+       "\n",
+       "       current_month_credit  previous_month_credit  current_month_debit  \\\n",
+       "2                      0.36                   0.36               857.50   \n",
+       "3                      0.64                   0.64              1299.64   \n",
+       "4                      0.27                   0.27               443.13   \n",
+       "5                    714.51                 121.09               714.51   \n",
+       "6                   6912.29                4206.13              1887.30   \n",
+       "...                     ...                    ...                  ...   \n",
+       "17649                  0.26                   0.26                 8.50   \n",
+       "17650                  0.09                 200.09               188.61   \n",
+       "17651                  0.30                   0.30              1428.87   \n",
+       "17652                  0.61                   0.61                 0.61   \n",
+       "17653                  0.40                3562.12                14.69   \n",
+       "\n",
+       "       previous_month_debit  current_month_balance  previous_month_balance  \n",
+       "2                    286.07               15719.44                15349.75  \n",
+       "3                    439.26                7076.06                 7755.98  \n",
+       "4                   5688.44                8563.84                 5317.04  \n",
+       "5                    359.44                1183.45                 1857.42  \n",
+       "6                   1348.85                1823.16                 2416.69  \n",
+       "...                     ...                    ...                     ...  \n",
+       "17649                162.79                2365.52                 2324.21  \n",
+       "17650                188.61               23745.37                   38.98  \n",
+       "17651                714.59                3389.72                 4325.68  \n",
+       "17652                  0.61                3227.34                 3227.34  \n",
+       "17653               6728.97                 948.82                 4074.91  \n",
+       "\n",
+       "[17652 rows x 19 columns]"
+      ]
+     },
+     "execution_count": 33,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "X"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 28,
+   "id": "2c70ea6e",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "Index(['customer_id', 'vintage', 'age', 'gender', 'dependents', 'occupation',\n",
+       "       'customer_nw_category', 'branch_code', 'days_since_last_transaction',\n",
+       "       'current_balance', 'previous_month_end_balance',\n",
+       "       'average_monthly_balance_prevQ', 'average_monthly_balance_prevQ2',\n",
+       "       'current_month_credit', 'previous_month_credit', 'current_month_debit',\n",
+       "       'previous_month_debit', 'current_month_balance',\n",
+       "       'previous_month_balance', 'churn'],\n",
+       "      dtype='object')"
+      ]
+     },
+     "execution_count": 28,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "nf.columns"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 40,
+   "id": "5e5d8cee",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "2        1\n",
+       "3        1\n",
+       "4        1\n",
+       "5        1\n",
+       "6        1\n",
+       "        ..\n",
+       "17649    1\n",
+       "17650    1\n",
+       "17651    1\n",
+       "17652    1\n",
+       "17653    0\n",
+       "Name: churn, Length: 17652, dtype: int64"
+      ]
+     },
+     "execution_count": 40,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "nf['churn']"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "2e40dee4",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "#Binning of variables to be included in the pipeline."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 41,
+   "id": "7ca8858e",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "categorical_vars=['gender','occupation','customer_nw_category']"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 42,
+   "id": "71d9c58a",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "numeric_data=['customer_id', 'vintage', 'age', 'dependents', 'branch_code', 'days_since_last_transaction',\n",
+    "       'current_balance', 'previous_month_end_balance',\n",
+    "       'average_monthly_balance_prevQ', 'average_monthly_balance_prevQ2',\n",
+    "       'current_month_credit', 'previous_month_credit', 'current_month_debit',\n",
+    "       'previous_month_debit', 'current_month_balance',\n",
+    "       'previous_month_balance']"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 43,
+   "id": "2630d80a",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "#Dealing with the categorical variables.\n",
+    "\n",
+    "missing_cat_data=('imputer', SimpleImputer(strategy='constant', fill_value='missing'))\n",
+    "\n",
+    "cat_ohe_step = ('ohe', OneHotEncoder(sparse=False, handle_unknown='ignore'))\n",
+    "\n",
+    "cat_steps = [missing_cat_data,cat_ohe_step]\n",
+    "\n",
+    "cat_pipe = Pipeline(cat_steps)\n",
+    "\n",
+    "cat_transformers = [('cat', cat_pipe, categorical_vars)]\n",
+    "\n",
+    "#Next dealing with the numeric variables.\n",
+    "\n",
+    "num_scl_step = ('scl', MinMaxScaler())\n",
+    "\n",
+    "num_knn_step=('knn_impute',KNNImputer(n_neighbors=5))\n",
+    "\n",
+    "num_steps = [num_scl_step,num_knn_step]\n",
+    "\n",
+    "num_pipe = Pipeline(num_steps)\n",
+    "\n",
+    "num_transformers = [('num', num_pipe, numeric_data)]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 45,
+   "id": "c97f15ab",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "discrete_vars=numeric_data"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 46,
+   "id": "b50b7a5c",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "ct = ColumnTransformer(transformers=cat_transformers + num_transformers)\n",
+    "ct.fit(nf[categorical_vars + discrete_vars])\n",
+    "X = ct.transform(nf[categorical_vars + discrete_vars])\n",
+    "y = nf[['churn']].values"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 49,
+   "id": "f418af04",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def get_roc_score(model):\n",
+    "    cv_results = cross_validate(model, X_train, np.ravel(y_train),scoring='roc_auc', cv=5)\n",
+    "    sorted(cv_results.keys())\n",
+    "    ['fit_time', 'score_time', 'test_score']\n",
+    "    print(\"The roc_auc scores:\",cv_results['test_score'])\n",
+    "    print(\"The mean roc_acuc score is:\",cv_results['test_score'].mean())"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 50,
+   "id": "fbf43132",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "\n",
+    "def find_features(model):\n",
+    "    #Takes a fitted model.\n",
+    "    #Returns a dataframe of featue importances from the model.\n",
+    "    calc_importance=model.feature_importances_\n",
+    "    important_features=list(zip(column_names,calc_importance))\n",
+    "    important_features=pd.DataFrame(important_features)\n",
+    "    important_features.rename(columns={0:'feature'},inplace=True)\n",
+    "    important_features.rename(columns={1:'value'},inplace=True)\n",
+    "    important_features.sort_values('value', ascending=False,inplace=True)\n",
+    "    return important_features"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 51,
+   "id": "655115bd",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def plot_important_features(found_features):\n",
+    "    #Make barplot of the best features found by function: find_features.\n",
+    "    useful_data=found_features.iloc[np.r_[4,11:18]]\n",
+    "    print(\"Features that are not zero\",useful_data)\n",
+    "    sns.barplot(x=useful_data['feature'],y=useful_data['value'],data=useful_data)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 47,
+   "id": "8fb7d32c",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=15611, stratify=y)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 48,
+   "id": "f71eb789",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "GradientBoostingClassifier(max_depth=9, min_samples_split=600, n_estimators=70,\n",
+       "                           random_state=15611)"
+      ]
+     },
+     "execution_count": 48,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "gbc=ensemble.GradientBoostingClassifier(n_estimators=70,min_samples_split=600,max_depth=9,random_state=15611)\n",
+    "gbc.fit(X_train,np.ravel(y_train))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 52,
+   "id": "98bd32c9",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "The roc_auc scores: [0.823083   0.81203617 0.83778893 0.8133743  0.83480359]\n",
+      "The mean roc_acuc score is: 0.8242171971962653\n"
+     ]
+    }
+   ],
+   "source": [
+    "\n",
+    "get_roc_score(gbc)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 54,
+   "id": "fcb9bc19",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "column_names=['customer_id', 'vintage', 'age', 'gender', 'dependents', 'occupation',\n",
+    "       'customer_nw_category', 'branch_code', 'days_since_last_transaction',\n",
+    "       'current_balance', 'previous_month_end_balance',\n",
+    "       'average_monthly_balance_prevQ', 'average_monthly_balance_prevQ2',\n",
+    "       'current_month_credit', 'previous_month_credit', 'current_month_debit',\n",
+    "       'previous_month_debit', 'current_month_balance',\n",
+    "       'previous_month_balance']"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "e3107495",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "#Looking for the most important feature columns in our dataset."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 55,
+   "id": "fc6c6d30",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>feature</th>\n",
+       "      <th>value</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>17</th>\n",
+       "      <td>current_month_balance</td>\n",
+       "      <td>0.489307</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>12</th>\n",
+       "      <td>average_monthly_balance_prevQ2</td>\n",
+       "      <td>0.023931</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>18</th>\n",
+       "      <td>previous_month_balance</td>\n",
+       "      <td>0.022252</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>15</th>\n",
+       "      <td>current_month_debit</td>\n",
+       "      <td>0.010353</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>11</th>\n",
+       "      <td>average_monthly_balance_prevQ</td>\n",
+       "      <td>0.009104</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>13</th>\n",
+       "      <td>current_month_credit</td>\n",
+       "      <td>0.006635</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>16</th>\n",
+       "      <td>previous_month_debit</td>\n",
+       "      <td>0.005968</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>14</th>\n",
+       "      <td>previous_month_credit</td>\n",
+       "      <td>0.003284</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>4</th>\n",
+       "      <td>dependents</td>\n",
+       "      <td>0.002051</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>9</th>\n",
+       "      <td>current_balance</td>\n",
+       "      <td>0.001537</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>5</th>\n",
+       "      <td>occupation</td>\n",
+       "      <td>0.000683</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2</th>\n",
+       "      <td>age</td>\n",
+       "      <td>0.000185</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>7</th>\n",
+       "      <td>branch_code</td>\n",
+       "      <td>0.000104</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>8</th>\n",
+       "      <td>days_since_last_transaction</td>\n",
+       "      <td>0.000100</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>10</th>\n",
+       "      <td>previous_month_end_balance</td>\n",
+       "      <td>0.000000</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1</th>\n",
+       "      <td>vintage</td>\n",
+       "      <td>0.000000</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>6</th>\n",
+       "      <td>customer_nw_category</td>\n",
+       "      <td>0.000000</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>3</th>\n",
+       "      <td>gender</td>\n",
+       "      <td>0.000000</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>0</th>\n",
+       "      <td>customer_id</td>\n",
+       "      <td>0.000000</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "                           feature     value\n",
+       "17           current_month_balance  0.489307\n",
+       "12  average_monthly_balance_prevQ2  0.023931\n",
+       "18          previous_month_balance  0.022252\n",
+       "15             current_month_debit  0.010353\n",
+       "11   average_monthly_balance_prevQ  0.009104\n",
+       "13            current_month_credit  0.006635\n",
+       "16            previous_month_debit  0.005968\n",
+       "14           previous_month_credit  0.003284\n",
+       "4                       dependents  0.002051\n",
+       "9                  current_balance  0.001537\n",
+       "5                       occupation  0.000683\n",
+       "2                              age  0.000185\n",
+       "7                      branch_code  0.000104\n",
+       "8      days_since_last_transaction  0.000100\n",
+       "10      previous_month_end_balance  0.000000\n",
+       "1                          vintage  0.000000\n",
+       "6             customer_nw_category  0.000000\n",
+       "3                           gender  0.000000\n",
+       "0                      customer_id  0.000000"
+      ]
+     },
+     "execution_count": 55,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "find_features(gbc)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 153,
+   "id": "37544e16",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Barplot showing features from the original data against calculated featrure importance.\n",
+      "Features that are not zero                           feature     value\n",
+      "11  average_monthly_balance_prevQ  0.009104\n",
+      "2                             age  0.000185\n",
+      "7                     branch_code  0.000104\n",
+      "8     days_since_last_transaction  0.000100\n",
+      "10     previous_month_end_balance  0.000000\n",
+      "1                         vintage  0.000000\n",
+      "6            customer_nw_category  0.000000\n",
+      "3                          gender  0.000000\n"
+     ]
+    },
+    {
+     "data": {
+      "image/png": "iVBORw0KGgoAAAANSUhEUgAABXcAAARrCAYAAADINZU7AAAAOXRFWHRTb2Z0d2FyZQBNYXRwbG90bGliIHZlcnNpb24zLjQuMywgaHR0cHM6Ly9tYXRwbG90bGliLm9yZy/MnkTPAAAACXBIWXMAAAsTAAALEwEAmpwYAABU6ElEQVR4nOzde5yXdZ3w//fAACozYnnK3cJWhNqyQkjd6qF3ulFJaSoKlOJ6aMtDlscklQ1TBA+wJiqpK7X3gEaKZZjdq4bKrYYKioYHUFRCySQEYYZgTp/fH/743h5mwNM4vPX5/Ke+XnNd13u+853vdc2La66pKqWUAAAAAAAglS6dPQAAAAAAAG+euAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkFB1Zw/wTmttbY2Ghobo1q1bVFVVdfY4AAAAAABvWSklmpqaomfPntGly6uv1X3Pxd2GhoZYuHBhZ48BAAAAAPCO6devX9TW1r7qv73n4m63bt0i4uVPtnv37p08DQAAAADAW9fY2BgLFy6sdM9Xes/F3fW3YujevXv06NGjk6cBAAAAAHj72roFrT+oBgAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkFB1Zw+wqVo2aUpnj8AmaNtjD+vsEQAAAAAgIly5CwAAAACQkrgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJBQdUdtuLW1NUaPHh0LFiyI7t27x7nnnhs77rhjZfnMmTPjsssui+rq6hgyZEgMHTq03XUee+yx+PGPfxxdu3aNj370ozFmzJjo0kWXBgAAAADevzqskN52223R2NgY06ZNi1NOOSXGjRtXWdbU1BRjx46NyZMnR11dXUybNi2WLVvW7jqXXnppHH/88XHttddGY2Nj3HHHHR01NgAAAABACh125e7cuXNjzz33jIiI/v37x/z58yvLFi1aFL17945evXpFRMTAgQNjzpw5MW/evDbX+ed//udYuXJllFKioaEhqqs7bGwAAAAAgBQ6rJLW19dHTU1N5XHXrl2jubk5qquro76+PmprayvLevbsGfX19e2u89GPfjR+8pOfxKRJk6K2tjb22GOPje7/lTH5rej9ttbmvWru3LmdPQIAAAAAREQHxt2amppoaGioPG5tba1ccfvaZQ0NDVFbW9vuOmPGjImpU6dG3759Y+rUqTFu3Lj48Y9/vMH977LLLtGjR4+3PP+y+x57y+vy3jVw4MDOHgEAAACA95F169a1eyFrh91zd8CAATFr1qyIiJg3b17069evsqxPnz6xePHiWLlyZTQ2NsacOXNi1113bXedXr16Va7o3W677WLVqlUdNTYAAAAAQAodduXuoEGD4u67747hw4dHKSXOO++8mDFjRqxZsyaGDRsWI0eOjKOPPjpKKTFkyJDYfvvt21wnIuLcc8+Nk046Kaqrq6Nbt25xzjnndNTYAAAAAAApVJVSSmcP8U5af5ny274tw6Qp7+BUvFdse+xhnT0CAAAAAO8jG+qdHXZbBgAAAAAAOo64CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4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AAAAACAhcRcAAAAAICFxFwAAAAAgIXEXAAAAACAhcRcAAAAAICFxFwAAAAAgIXEXAAAAACAhcRcAAAAAICFxFwAAAAAgIXEXAAAAACAhcRcAAAAAICFxFwAAAAAgIXEXAAAAACAhcRcAAAAAICFxFwAAAAAgIXEXAAAAACAhcRcAAAAAICFxFwAAAAAgIXEXAAAAACAhcRcAAAAAICFxFwAAAAAgIXEXAAAAACAhcRcAAAAAICFxFwAAAAAgIXEXAAAAACAhcRcAAAAAICFxFwAAAAAgIXEXAAAAACAhcRcAAAAAICFxFwAAAAAgIXEXAAAAACAhcRcAAAAAICFxFwAAAAAgIXEXAAAAACAhcRcAAAAAICFxFwAAAAAgIXEXAAAAACAhcRcAAAAAICFxFwAAAAAgIXEXAAAAACAhcRcAAAAAICFxFwAAAAAgIXEXAAAAACAhcRcAAAAAICFxFwAAAAAgIXEXAAAAACAhcRcAAAAAICFxFwAAAAAgIXEXAAAAACAhcRcAAAAAICFxFwAAAAAgIXEXAAAAACAhcRcAAAAAICFxFwAAAAAgIXEXAAAAACAhcRcAAAAAICFxFwAAAAAgIXEXAAAAACAhcRcAAAAAICFxFwAAAAAgIXEXAAAAACAhcRcAAAAAICFxFwAAAAAgIXEXAAAAACAhcRcAAAAAICFxFwAAAAAgIXEXAAAAACAhcRcAAAAAICFxFwAAAAAgIXEXAAAAACAhcRcAAAAAICFxFwAAAAAgIXEXAAAAACAhcRcAAAAAICFxFwAAAAAgIXEXAAAAACAhcRcAAAAAICFxFwAAAAAgIXEXAAAAACAhcRcAAAAAICFxFwAAAAAgIXEXAAAAACAhcRcAAAAAICFxFwAAAAAgIXEXAAAAACAhcRcAAAAAICFxFwAAAAAgIXEXAAAAACAhcRcAAAAAICFxFwAAAAAgIXEXAAAAACAhcRcAAAAAICFxFwAAAAAgIXEXAAAAACAhcRcAAAAAICFxFwAAAAAgIXEXAAAAACAhcRcAAAAAICFxFwAAAAAgIXEXAAAAACAhcRcAAAAAICFxFwAAAAAgIXEXAAAAACAhcRcAAAAAICFxFwAAAAAgIXEXAAAAACAhcRcAAAAAICFxFwAAAAAgIXEXAAAAACAhcRcAAAAAICFxFwAAAAAgIXEXAAAAACAhcRcAAAAA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kJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkJC4CwAAAACQkLgLAAAAAJCQuAsAAAAAkFB1Zw8AvHn3X7FfZ4/AJmi3787o7BEAAACAd5ErdwEAAAAAEhJ3AQAAAAASEncBAAAAABISdwEAAAAAEhJ3AQAAAAASEncBAAAAABISdwEAAAAAEhJ3AQAAAAASqu7sAQB477ii7iudPQKboO+O+J/OHiEG/+aUzh6BTdDNB4zv7BEAAOBtceUuAAAAAEBC4i4AAAAAQELiLgAAAABAQuIuAAAAAEBC4i4AAAAAQELiLgAAAABAQuIuAAAAAEBC4i4AAAAAQELVHbXh1tbWGD16dCxYsCC6d+8e5557buy4446V5TNnzozLLrssqqurY8iQITF06NB211m8eHGMHDkyqqqqom/fvvHjH/84unTRpQEAAACA968OK6S33XZbNDY2xrRp0+KUU06JcePGVZY1NTXF2LFjY/LkyVFXVxfTpk2LZcuWtbvO2LFj48QTT4xrrrkmSinxhz/8oaPGBgAAAABIocOu3J07d27sueeeERHRv3//mD9/fmXZokWLonfv3tGrV6+IiBg4cGDMmTMn5s2b1+Y6jzzySOy+++4REbHXXnvF3XffHYMGDWpzv6WUiIhobGx8W/M3d+/2ttbnvWndunWdPcLLum/V2ROwCdoUXp/du23V2SOwCdoUXptbde3Z2SOwCdoUXpsAALAx6zvn+u75Sh0Wd+vr66OmpqbyuGvXrtHc3BzV1dVRX18ftbW1lWU9e/aM+vr6dtcppURVVVXlY1evXt3ufpuamiIiYuHChW/vE+i/89tbn/ekpa/4R4rO1OXTJ3b2CGyC5m8Cr89P9/1hZ4/AJmhTeG2e8g/f6OwR2ARtCq9NAAB4o5qammKzzTZ71X/rsLhbU1MTDQ0Nlcetra1RXV3d5rKGhoaora1td51X3l+3oaEhttxyy3b327Nnz+jXr19069atEoQBAAAAADIqpURTU1P07Pn630jssLg7YMCAuP3222Pw4MExb9686NevX2VZnz59YvHixbFy5crYYostYs6cOXH00UdHVVVVm+t84hOfiHvvvTf22GOPmDVrVvzLv/xLu/vt0qXLq64KBgAAAADI7LVX7K5XVdq6WcM7oLW1NUaPHh0LFy6MUkqcd9558eijj8aaNWti2LBhMXPmzLjsssuilBJDhgyJQw89tM11+vTpE08//XSMGjUqmpqaYqeddopzzz03unbt2hFjAwAAAACk0GFxFwAAAACAjtNl4x8CAAAAAMCmRtwFAAAAAEhI3H0fuf/+++Pxxx+PiIgvfOELr1s+ceLEuPbaa9/UNkeOHBmzZs16Qx/7Vra/KbrrrrtixIgR8a1vfSuGDx8eP//5z8PdTQDyWrduXeyzzz7v2v4ee+yxuPTSSzts+/fee2+cdNJJb3q9KVOmbHD5ggUL4v7773+rY70jVq5cGTNmzIiIiCuvvDIefvjhTp1nU/S9732vs0d4U6ZNmxZNTU1v+XX7Zp100klx7733trt8xIgRsWjRoje0rTdzHsymZ9asWTFt2rR2l7/y/QZeaenSpTFz5szOHuNdtf69Gt6uWbNmxciRIzt7jPcccfd9ZPr06fHCCy909hipPfroozF+/PgYP358XHPNNTFlypRYtGhRXH311Z09GrARN9xwQ1x00UUdtv13I0wsWrQoRowY0aH7oOP98z//8yYZ4CZNmrTB5bfccks8+eST79I0bVuwYEHlB+rvfOc78elPf7pT59kUdeQ/HHSEK664IlpbWzt7DN6H9tprrxg2bFi7y1/5fgOvNHv27HjggQc6e4x3lfdq2LRVd/YAnaW+vj7OPPPMWL16daxYsSK+9KUvxU033RQ333xzVFVVxdlnnx2f//zno3fv3nHuuedGRMRWW20V5513Xjz66KNx0UUXRbdu3WLo0KGx2WabxdSpUyvb/ulPfxof+MAH4uyzz4758+fHNttsE88991xMmjQpunbtGqNGjYp169ZFjx494pxzzokddtihzRknTpwYixcvjhUrVsRLL70U3/rWt+KWW26Jp59+Os4///zo379/TJ48OX73u99FdXV1fPazn43TTjstJk6cGM8++2wsX748li5dGj/60Y/iAx/4QPzf//t/45FHHomdd945Ghsb45RTTomlS5fGVlttFZdcckllvxMmTIjtt98+Dj300HjppZfiyCOPjBtuuKHd5/Kaa66Jq6++OlpaWmLMmDGx4447xvjx42P+/PnR0NAQffr0ibFjx1Y+vqWlJf7jP/4jnn/++VixYkXstddeceKJJ8bIkSOje/fu8dxzz8ULL7wQ48aNi09+8pNx3XXXxbXXXhutra3xr//6r3HCCSfE73//+/jFL34RXbp0iYEDB8app57a7nyDBw+Oz372s/HEE09Er169YsKECfF//s//ienTp0dra2t8//vfj5UrV75uewcddFBccskl8eEPfzh+//vfx9y5c2PdunVxzDHHxHbbbRcREdXV1TFy5Mg48MAD49vf/vYbe/Hxprz2e/WQQw6JXXbZJc4+++zo2bNnbL311tGjR48YN25c1NXVxU033RRVVVUxePDgOPzwwzt7fGAT1dDQEKeeemqsWrUqevfuHRER9913XyWMrV27Ns4///y477774plnnonTTz89Wlpa4oADDohrrrkmTjvttKivr4+1a9fGaaedFnvssUeb+3n66afjRz/6UVRXV0fXrl3jggsuiGeeeSZ++ctfxn/+53/Gl7/85RgwYEA8/fTTsfXWW8fEiROjqakpfvSjH8XSpUujqakpRo0aFbvsskv8+Mc/jsWLF0dra2uceOKJ7e7zlaZMmRK33HJLNDc3R21tbUycODGee+651810ww03xEsvvRSjR4+O0aNHv247f/3rX+PXv/51dOvWLT75yU/GGWecER/96Eeje/fu8cMf/jBGjx4d69ati5UrV8bxxx8fX/rSl2K//faL3XffPRYsWBBVVVVx+eWXR1NTU5x44olRSommpqY4++yz42Mf+1ib5w3Lly+PkSNHxurVq6OUEueff3787Gc/i8cffzymTZsWDz74YAwePDg+97nPxRlnnBFLliyJlpaWOPLII2Pw4MExYsSI+PjHPx5PPPFE1NfXx09/+tP4x3/8x7f+oulAN9xwQ/zhD3+I+vr6WLFiRRx//PExceLEynN89tlnx5lnnhkrVqyIiIizzjornn322bjtttsq51gHHHBAXH311bH//vvH3XffHY8++micc8450bVr18o5Z2tra5x88snxq1/9KiIihg4dGhMmTIi//vWvcf7550d1dXVsueWWcdFFF0VNTU2bs44YMSI+9rGPxRNPPBFbbLFFfPazn4277rorVq1aFZMnT44tttjiDX897rnnnli2bFmcdNJJ8W//9m+xePHi+Pa3vx0vvvhi7L333nHCCSe0+5y1dcxv71xy6tSpcd1118W2224by5cv3+jX45JLLokVK1ZE9+7d44ILLohevXq1ee66XlvnKt/61rfafQ1efvnlcdttt0VLS0t885vfjOHDhzuHeRd873vfi8MPPzx23333ePjhh+PII4+sPP+nnHJKfOhDH4olS5bEpz71qTj77LNf9X6z6667xrhx46K1tTVWrVoVZ511VgwYMCCuu+66mDp1avTq1Su6desWgwcPjv322+8tvV/z7lq7du2rjrVf+cpXYvXq1XHqqafGunXrYt99942ZM2fG1KlT4ze/+U106dIlBgwYEKeeempceeWVsXbt2th1111jhx12aPO99qSTTooddtghnn322fja174WTzzxRDz66KPxxS9+MU4++eRYsGDBRjvDAQcc8Lq577333rjqqquiW7du8eyzz8bgwYNj+PDhccQRR8SNN94YDz74YHz3u9+NP/7xj7Fs2bI488wz270Q6aGHHooxY8ZEKSW23377uOiii+Lhhx9+3bnQnDlzKu/Vl19+eYwfPz7uv//+KKXEEUccEfvuu288/PDDbf581l6vePDBB2PNmjWx7777xvPPP/+q86zp06dH9+7dO+xrz5u3du3a+OEPfxgvvPBC7LDDDnH//ffH1Vdf3eZr+LWvz2OPPTYWLVoUZ5xxRmy++eax+eabR69evSIi2uw6r3x9jBkzJvr06dOZn3oe5X1q/vz55X/+539KKaU8//zzZdCgQeUHP/hBue+++8q6devK4MGDS1NTUznkkEPKE088UUop5Ve/+lWZMGFCmT17dtlvv/0q25o0aVJZs2ZNKaWUUaNGlRtvvLHceuut5Qc/+EEppZTly5eXgQMHliVLlpQf/OAH5Y477iillHLPPfeUk08+ud0ZL7nkknLmmWeWUkq54ooryve///1SSinXX399Offcc8vjjz9eDj744NLY2FhaW1vL8ccfX2bOnFkuueSSctZZZ5VSSrnrrrvKUUcdVUop5fTTTy933nlnKaWUT3ziE2XJkiWllFIOO+yw8tBDD5VLLrmkXHPNNeXPf/5zOfjgg0sppUyZMqVMnjy53RlPP/30csUVV5RSSrnjjjvK8ccfX1avXl2uvPLKUkopLS0t5atf/Wp5/vnnK9tfsmRJ+dWvflVKKWXt2rVl9913r2xr0qRJpZRSpk2bVkaNGlX+9re/lUGDBpW///3vpaWlpYwZM6Y899xzZd99960856eeemq566672p1x7733Lvfdd18ppZTzzz+/TJ48uUyfPr0cc8wxpZRSVqxY0eb2pk6dWiZOnFhKKeXf//3fy4IFC8pRRx1VHnnkkdft4wtf+EJpaWlpdwbeura+Vw844ICycOHCUkopEyZMKKeffnp54oknyvDhw0tzc3NpaWkpI0aMKIsWLerM0dnETJ8+vRx66KHl8MMPLwcddFC5/fbby9e+9rVy/PHHl5NOOqn85S9/Kd/97nfLEUccUQ444IBy6623llJK+frXv15+8pOflEMPPbQcdthhZdWqVaWlpaWcffbZZciQIWX//fcvt956a5k9e3Y58MADy9FHH10OPPDAcskll2xwnssuu6wceOCBZf/99y/XXnttKaWUq6++uhx00EFl6NCh5YILLiillPLXv/61jBgxohx22GHlpJNOKocddlgppZR77723DB8+vBx66KFl5MiRpbGxsQOfvfeeurq6MmHChFJKKfPmzSt77713mTJlSnn++edLKS8f2y+//PKyevXqMmjQoNLc3Fxuv/32cs4555SFCxeWIUOGlNWrV5dnnnmmclxvy5QpU8pPfvKT0tjYWO65556yYMGCMnv27HLiiSeWUkr5+Mc/XpYuXVpKKWXYsGHlwQcfLD//+c/LhRdeWEopZcGCBeXnP/95mTp1auU18eKLL5bBgwe3u8/1229paSkTJ06sHJ+OOuqoMmfOnDZnKqWUz3/+8xt8ztYfx0t5+di6/nh49913l9mzZ5dSSpk7d2454ogjKh8zd+7cUkopJ598crnpppvK7bffXo477rjy97//vfzpT38qc+bMafe84Zxzzqns75577ik33njjq5679ec1dXV1ZcyYMaWUUvl6LV++vBx22GHlt7/9bSnl5WPF+vOVTdH06dPLEUccUVpaWsqyZcvKF7/4xbLnnntWnuMLLrigTJ06tZRSytNPP1053n3lK18pDQ0N5aGHHionnHBCKeX/fR0PPPDA8uijj5ZSSrn11lvLCSecUJYsWVIOOeSQyn4POeSQsmTJkjJu3Lhy5ZVXlpaWlnLrrbeW5557rt1ZDzvssHLjjTeWUl5+TU2ZMqWUUsoPf/jDcuutt77pr8fee+9d1q5dW2bPnl0GDx5c1q1bV9asWVM5P2xLe8f8ts4lV61aVb785S+XdevWlcbGxvL1r3+98npt7/O76aabSikvf/+ed955Gzx3vfPOO9s8V1m/rdd+zo888kgZNmxYaW5uLmvWrKm8pziH6Xh33HFHGTlyZCmllNGjR5e6urpy4YUXliVLlpTdd9+9rF69ujQ3N5cvfvGL5YUXXnjV+83vfve78vjjj5dSSvntb39bzjzzzLJ8+fLy5S9/uaxZs6Y0NzeXb33rW2X69Olv6v2aztPWsXb947Vr15a99967lFLKQQcdVB588MFSSilTp04tTU1NZfr06ZWPbe+9do899iirVq0qL7zwQvnUpz5VVqxYUdauXVs+97nPlVLKG+oMbZk9e3bZd999S1NTU2loaCgDBgwopZRy+OGHl6VLl5af/vSnZb/99isPPfRQmTJlSuU42pb99tuvPPnkk6WUl9/v5s+f3+a5UCn/7736jjvuqHxfrF27tuy///7lpZdeavPnsw31inPOOaeUUto8z2LT84tf/KKcf/75pZRSnnzyyfLxj3+83ddwW6/PE044odJsrrjiinL66ae322Fe+frgjXvfXrm7zTbbxH//93/HLbfcEjU1NdHc3BxDhw6NX//617Fs2bLYZ599orq6OhYtWhRnn312REQ0NTXFP/3TP0VEVP43ImLrrbeO008/PXr27BlPPfVU9O/fv/K/EREf/OAHY6eddoqIiIULF8YVV1wR//Vf/xWllOjWrdsG5/zEJz4RERG1tbWx8847R0REr169Yt26dfHUU0/FZz7zmco21l+dGvHyr3xGRHzoQx+KxsbG1223V69e8eEPf7jyXPz973+vLPvIRz4SPXv2jCeffDJmzJgRl19++QZn/OxnPxsREbvuumtccMEF0aNHj3jxxRfj5JNPji222CLWrFnzqvvzbLXVVvGnP/0pZs+eHTU1Na+a75VzP/DAA7FkyZLo27dvbLbZZhERccYZZ8TDDz8cL774YnznO9+JiJevvlqyZEm781VXV8duu+0WEREDBgyIWbNmRf/+/Stfwz//+c9tbm///fePb37zm3HIIYdEfX199OvXL/7hH/4hlixZUvm6RESsXr06qqqqoksXdznpCG19r77wwgvRt2/fiIgYOHBg3HzzzbFw4cJYunRpHHHEERER8dJLL8Wf//znyvceRERsvvnmceWVV8aLL74YhxxySLS2tsZxxx0Xn/jEJ+Kee+6JI488MvbYY4944IEHYuLEifGlL30pGhoa4mtf+1qMGjUqTjnllJg1a1Z07949VqxYEddff30sW7YspkyZEp///Odj3bp1cfnll0dLS0t88YtfbPeqs0cffTRmzZoV1113XTQ2Nsb48eNjwYIF8fvf/z5++ctfRnV1dZxwwglx++23x3333Rdf//rXY+jQoXHzzTfHtddeG6WUGDVqVFxzzTWx9dZbx8UXXxy//vWvY+jQoe/yM5rXE088EXvuuWdERHzmM5+J6urq2H777WPMmDGxxRZbxF//+tcYMGBA1NTUxG677RZ33XVX3HDDDXHcccdF375949BDD42TTz45mpubN3irjIMPPjiuuuqq+Pa3vx21tbWvu3XHBz7wgcpv8Oywww6V4/tee+0VERH9+vWLfv36xejRo2Pu3LmVe8w2NzfHihUr4gMf+EC7++7SpUt069atcjx+/vnno7m5eaMzvVHrj6PbbrttTJo0Ka6//vqoqqqK5ubmysesP16u/9z23XffeOaZZ+K4446L6urqOPbYY9s9b3j66afj4IMPjoiIz33ucxERbd4rddGiRfH5z38+IiJqamqiT58+lfOC9fv/0Ic+FH/729/e0uf5btltt92iS5cusc0228SWW24ZixYtqjzHCxcujNmzZ8fvf//7iIhYtWpVdO3aNb7yla/ELbfcEvPmzYtDDjnkVdt74YUXKudVu+22W4wfP/51+yz//98MOOaYY+JnP/tZ/Nu//Vtsv/32G73dxSc/+cmIiNhyyy0r56dbbrllrFu37m19Pfr27Vu5Wqu6uv0fU9o75ke8/lzyqaeeip133rmy3TdyK4/157YDBgyIO++8c4PnrhFtn6us99rP+emnn45Pf/rT0bVr19h8883jrLPOiptvvtk5zLtgzz33jAsvvDBWrlwZc+bMedX5fO/evStXq2+77baxbt26V6273XbbxeWXXx6bbbZZNDQ0RE1NTfz5z3+OPn36xOabbx4RL/8sFPHy6/PNvl/z7nvtsXb+/PmV96Xyir+nMnbs2Jg8eXJcdNFF0b9//9f9rZX23ms/8pGPRG1tbXTv3j222Wab2GqrrSIioqqqKiLiDXWG9vTr1y+qq6ujurq68nPyoEGD4s4774wHH3ww/v3f/z3uvvvuePDBB2PMmDHtbmf58uWVqyIPPfTQiIj4y1/+8rpzoVdauHBhPPLII5Vzn+bm5li6dGmbP59tqFes/zzbOs9i07No0aLK90ufPn3igx/8YLuv4bZen0888UTl+DtgwIB46qmn2u0wEW/s+4BXe9/WqMmTJ0f//v3joosuiq9+9atRSonPfe5z8dhjj8X06dMrP0z80z/9U5x//vlRV1cXp512Wvyv//W/IiIqIW/16tVxySWXxH/+53/GueeeGz169IhSSvTt2zfmzZsXES+foD3zzDMREbHTTjvFqaeeGnV1dXH22WfHV77ylQ3Ouf7Nvy077bRTPPzww9Hc3ByllLj//vsr3wRtrVdVVVU5GG1ouxEv/5repEmTYvvtt48PfvCDG/zY9Scuc+bMib59+8asWbPiL3/5S0yYMCFOPvnkWLt27asOgjfccEPU1tbG+PHj46ijjnrV8tfO1bt373jqqacqJ9Hf//73Y+utt44ddtghJk+eHHV1dXHYYYfFZz7zmXbna25urvwhublz51Z+CFn/Nfzwhz/c5vZqampil112ibFjx8ZBBx0UERHDhg2Ln/3sZ/HCCy/EU089Fcccc0ycccYZlYMh77y2vlc/9KEPVe77+NBDD0XEy98PO++8c/zv//2/o66uLg466KDo169fZ47OJmjgwIFRVVUVW2+9ddTW1sbKlStfFaimTZsWp512Wvzyl7/cYKB6+umnK/+At+2221bi2Powsfnmm28wTLT1w/0rT4CrqqoqJ8CvPRmKiHjxxRfjhRdeiBNPPDFGjBgRd999dyxduvQdf77ey3baaafKcfrRRx+N5ubmOOuss+K8886LcePGxXbbbVc5Ng0dOjSuu+66WL58eXz84x+PBQsWRENDQ1x55ZUxbty4OOecc9rdzx/+8IcYOHBg/Pd//3d89atfjf/6r/961fK2jsd9+vSJP/3pTxERsWTJkjjllFNip512iq997WtRV1cXV111VXz1q1+t/Epbex5//PG47bbb4uKLL45Ro0ZFa2trlFLanem1P7C+VlVV1avut7f+OPrTn/40vvGNb8SFF14Ye+yxx6u289rP7957743tttsuJk+eHMcee2xMmDCh3fOGVz4P999/f1x44YXRpUuX193zr0+fPjFnzpyIePnX4xcuXFj5B+xMHnnkkYiI+Nvf/hb19fWx9dZbV57jnXbaKY444oioq6uLiy++OPbbb7+IePkfD37729/GQw899Lo/lrvddttVzn/uv//++OhHPxo9evSI5cuXR0tLS6xatSqeffbZiIiYMWNGHHjggVFXVxd9+/at3LbhrXizX49Xvq42dn663oaO+a/dxkc+8pF48sknY+3a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\n",
+      "text/plain": [
+       "<Figure size 1728x1440 with 1 Axes>"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "print(\"Barplot showing features from the original data against calculated featrure importance.\")\n",
+    "plot_important_features(find_features(gbc))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 62,
+   "id": "7e3a59bb",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "19"
+      ]
+     },
+     "execution_count": 62,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "len(column_names)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 152,
+   "id": "86472907",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "rcParams['figure.figsize'] = 24,20"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 69,
+   "id": "58e13edf",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "GradientBoostingClassifier(random_state=15611)"
+      ]
+     },
+     "execution_count": 69,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "gbc_test=ensemble.GradientBoostingClassifier(random_state=15611)\n",
+    "gbc_test.fit(X_train,np.ravel(y_train))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 70,
+   "id": "bab420cf",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "y_pred_knn=gbc_test.predict(X_test)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 71,
+   "id": "daf2efa6",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "ROC_AUC_Accuracy: 0.7066175576233047\n"
+     ]
+    }
+   ],
+   "source": [
+    "print(\"ROC_AUC_Accuracy:\",roc_auc_score(y_test, y_pred_knn))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 72,
+   "id": "64cb0808",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "RandomForestClassifier(random_state=15611)"
+      ]
+     },
+     "execution_count": 72,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "from sklearn.ensemble import RandomForestClassifier\n",
+    "rfc = RandomForestClassifier(random_state=15611)\n",
+    "rfc.fit(X_train, np.ravel(y_train))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 73,
+   "id": "ceeb7df1",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "y_pred_knn=rfc.predict(X_test)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 74,
+   "id": "b7462b60",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "ROC_AUC_Accuracy: 0.7038945143830202\n"
+     ]
+    }
+   ],
+   "source": [
+    "print(\"ROC_AUC_Accuracy:\",roc_auc_score(y_test, y_pred_knn))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 75,
+   "id": "3cd2ec88",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "KNeighborsClassifier()"
+      ]
+     },
+     "execution_count": 75,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "from sklearn.neighbors import KNeighborsClassifier\n",
+    "neigh = KNeighborsClassifier()\n",
+    "neigh.fit(X_train, np.ravel(y_train))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 76,
+   "id": "21fee99c",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "y_pred_knn=neigh.predict(X_test)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 77,
+   "id": "b51ab81a",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "ROC_AUC_Accuracy: 0.5057349632062276\n"
+     ]
+    }
+   ],
+   "source": [
+    "print(\"ROC_AUC_Accuracy:\",roc_auc_score(y_test, y_pred_knn))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 78,
+   "id": "cca48366",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "DecisionTreeClassifier(random_state=15611)"
+      ]
+     },
+     "execution_count": 78,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "dec=DecisionTreeClassifier(random_state=15611)\n",
+    "dec.fit(X_train, np.ravel(y_train))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 79,
+   "id": "940572b3",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "y_pred_knn=dec.predict(X_test)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 80,
+   "id": "35c5a603",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "ROC_AUC_Accuracy: 0.6578544061302682\n"
+     ]
+    }
+   ],
+   "source": [
+    "print(\"ROC_AUC_Accuracy:\",roc_auc_score(y_test, y_pred_knn))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 124,
+   "id": "b31d72b4",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "AdaBoostClassifier(random_state=15611)"
+      ]
+     },
+     "execution_count": 124,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "ada_clf=AdaBoostClassifier(random_state=15611)\n",
+    "ada_clf.fit(X_train,np.ravel(y_train))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 125,
+   "id": "e04ca942",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "y_pred_knn=ada_clf.predict(X_test)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 126,
+   "id": "0471dc5c",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "ROC_AUC_Accuracy: 0.6713776379006264\n"
+     ]
+    }
+   ],
+   "source": [
+    "print(\"ROC_AUC_Accuracy:\",roc_auc_score(y_test, y_pred_knn))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 85,
+   "id": "a7b89555",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "ExtraTreesClassifier(random_state=15611)"
+      ]
+     },
+     "execution_count": 85,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "ext_t=ExtraTreesClassifier(random_state=15611)\n",
+    "ext_t.fit(X_train,np.ravel(y_train))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 86,
+   "id": "84b0a759",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "y_pred_knn=ext_t.predict(X_test)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 87,
+   "id": "81969993",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "ROC_AUC_Accuracy: 0.6047132518396886\n"
+     ]
+    }
+   ],
+   "source": [
+    "print(\"ROC_AUC_Accuracy:\",roc_auc_score(y_test, y_pred_knn))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 89,
+   "id": "15e4eb8f",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "start_rfc_155=time.time()\n",
+    "rfc_pca_155=RandomForestClassifier(random_state=15611)\n",
+    "rfc_pca_155.fit(X_train,np.ravel(y_train))\n",
+    "stop_rfc_155=time.time()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 91,
+   "id": "9df54791",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "y_pred_knn=rfc_pca_155.predict(X_test)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 92,
+   "id": "28183180",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "ROC_AUC_Accuracy: 0.7038945143830202\n"
+     ]
+    }
+   ],
+   "source": [
+    "print(\"ROC_AUC_Accuracy:\",roc_auc_score(y_test, y_pred_knn))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 96,
+   "id": "7a4b7e0d",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "now =time.time()\n",
+    "svm_clf_rbf = SVC(kernel=\"rbf\",C=100)\n",
+    "\n",
+    "svm_clf_rbf.fit(X_train, np.ravel(y_train))\n",
+    "\n",
+    "\n",
+    "end_train_svm_clf=time.time()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 97,
+   "id": "f6d54feb",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "y_pred_knn=svm_clf_rbf.predict(X_test)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 98,
+   "id": "6ccefbb7",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "ROC_AUC_Accuracy: 0.5059493401447425\n"
+     ]
+    }
+   ],
+   "source": [
+    "print(\"ROC_AUC_Accuracy:\",roc_auc_score(y_test, y_pred_knn))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 99,
+   "id": "fa254f14",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "now =time.time()\n",
+    "svm_clf_poly = SVC(kernel=\"poly\")\n",
+    "\n",
+    "svm_clf_poly.fit(X_train, np.ravel(y_train))\n",
+    "\n",
+    "\n",
+    "end_train_svm_clf=time.time()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 100,
+   "id": "6a5b6457",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "y_pred_knn=svm_clf_poly.predict(X_test)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 101,
+   "id": "b8580eef",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "ROC_AUC_Accuracy: 0.5\n"
+     ]
+    }
+   ],
+   "source": [
+    "print(\"ROC_AUC_Accuracy:\",roc_auc_score(y_test, y_pred_knn))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 102,
+   "id": "7e3d05e2",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "now =time.time()\n",
+    "svm_clf_poly = SVC(kernel='linear')\n",
+    "\n",
+    "svm_clf_poly.fit(X_train, np.ravel(y_train))\n",
+    "\n",
+    "\n",
+    "end_train_svm_clf=time.time()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 103,
+   "id": "2aab2c41",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "y_pred_knn=svm_clf_poly.predict(X_test)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 104,
+   "id": "05d6c217",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "ROC_AUC_Accuracy: 0.5\n"
+     ]
+    }
+   ],
+   "source": [
+    "print(\"ROC_AUC_Accuracy:\",roc_auc_score(y_test, y_pred_knn))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 115,
+   "id": "770b62ad",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "final_rfc=test_rfc=RandomForestClassifier(random_state=15611,n_estimators=600,min_samples_split=50,criterion='gini')\n",
+    "start=time.time()\n",
+    "final_rfc.fit(X_train, np.ravel(y_train))\n",
+    "stop=time.time()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 149,
+   "id": "c7cbf8b2",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "['best_rfc.joblib']"
+      ]
+     },
+     "execution_count": 149,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "joblib.dump(final_rfc, 'best_rfc.joblib')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 116,
+   "id": "a9f76c2a",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "y_pred_knn=final_rfc.predict(X_test)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 117,
+   "id": "e6e7ee01",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "#tuned RFC ROC_AUC_Accuracy: 0.6784840053518215  0.6901933953658091\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 118,
+   "id": "590ff2e1",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "ROC_AUC_Accuracy: 0.6939875630967585\n"
+     ]
+    }
+   ],
+   "source": [
+    "print(\"ROC_AUC_Accuracy:\",roc_auc_score(y_test, y_pred_knn))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 109,
+   "id": "62ca451c",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "GradientBoostingClassifier(max_depth=9, min_samples_split=600, n_estimators=70,\n",
+       "                           random_state=15611)"
+      ]
+     },
+     "execution_count": 109,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "gbc=ensemble.GradientBoostingClassifier(n_estimators=70,min_samples_split=600,max_depth=9,random_state=15611)\n",
+    "gbc.fit(X_train,np.ravel(y_train))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 148,
+   "id": "2c761e7b",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "['best_gbc.joblib']"
+      ]
+     },
+     "execution_count": 148,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "joblib.dump(ada_clf, 'best_gbc.joblib')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 110,
+   "id": "510af74d",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "y_pred_knn=gbc.predict(X_test)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "30bbe1df",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "#tuned GBC"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 111,
+   "id": "daa73f7c",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "ROC_AUC_Accuracy: 0.7194239189928845\n"
+     ]
+    }
+   ],
+   "source": [
+    "print(\"ROC_AUC_Accuracy:\",roc_auc_score(y_test, y_pred_knn))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "e0cde9ef",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "#final dec "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "39bda95e",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "0.6782262969044579"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 143,
+   "id": "60343cba",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "AdaBoostClassifier(n_estimators=115, random_state=15611)"
+      ]
+     },
+     "execution_count": 143,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "ada_clf=AdaBoostClassifier(random_state=15611,n_estimators =115)\n",
+    "ada_start=time.time()\n",
+    "ada_clf.fit(X_train,np.ravel(y_train))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 147,
+   "id": "7a1bdcca",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "['best_ada.joblib']"
+      ]
+     },
+     "execution_count": 147,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "import joblib\n",
+    "joblib.dump(ada_clf, 'best_ada.joblib')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 120,
+   "id": "57a8829e",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "{'algorithm': 'SAMME.R',\n",
+       " 'base_estimator': None,\n",
+       " 'learning_rate': 1.0,\n",
+       " 'n_estimators': 50,\n",
+       " 'random_state': 15611}"
+      ]
+     },
+     "execution_count": 120,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "ada_clf.get_params()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 144,
+   "id": "faa4e706",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "y_pred_knn=ada_clf.predict(X_test)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 123,
+   "id": "08d818b7",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "ROC_AUC_Accuracy: 0.6740748342759837\n"
+     ]
+    }
+   ],
+   "source": [
+    "print(\"ROC_AUC_Accuracy:\",roc_auc_score(y_test, y_pred_knn)) #ROC_AUC_Accuracy: 0.6713776379006264\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 130,
+   "id": "285f0f0b",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "ROC_AUC_Accuracy: 0.6814351091649942\n"
+     ]
+    }
+   ],
+   "source": [
+    "print(\"ROC_AUC_Accuracy:\",roc_auc_score(y_test, y_pred_knn)) #n_est ==65"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 133,
+   "id": "8ffdfe14",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "ROC_AUC_Accuracy: 0.6857713008575077\n"
+     ]
+    }
+   ],
+   "source": [
+    "print(\"ROC_AUC_Accuracy:\",roc_auc_score(y_test, y_pred_knn))v# 85"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 136,
+   "id": "2dc150b9",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "ROC_AUC_Accuracy: 0.6908129599221553\n"
+     ]
+    }
+   ],
+   "source": [
+    "print(\"ROC_AUC_Accuracy:\",roc_auc_score(y_test, y_pred_knn)) #105"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 145,
+   "id": "0f35437d",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "ROC_AUC_Accuracy: 0.6879393967037646\n"
+     ]
+    }
+   ],
+   "source": [
+    "print(\"ROC_AUC_Accuracy:\",roc_auc_score(y_test, y_pred_knn))"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3 (ipykernel)",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.8.8"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}
